@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateUserTable extends Migration
@@ -14,11 +15,11 @@ class CreateUserTable extends Migration
     public function up()
     {
         Schema::create('user', function (Blueprint $table) {
-            $table->char('id', 36)->default('uuid()')->primary();
+            $table->char('id', 36)->default(DB::raw('(UUID())'))->primary();
             $table->string('username');
             $table->string('password');
-            $table->string('email');
-            $table->string('phone_number');
+            $table->string('email')->unique();
+            $table->string('phone_number')->unique();
             $table->string('name');
             $table->date('birth_date');
             $table->tinyInteger('gender');
@@ -28,6 +29,7 @@ class CreateUserTable extends Migration
             $table->timestamp('last_sign_in')->useCurrentOnUpdate()->useCurrent();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
+            $table->rememberToken();
             $table->dateTime('email_verified_at')->nullable();
         });
     }

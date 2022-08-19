@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateOrderTable extends Migration
@@ -14,7 +15,7 @@ class CreateOrderTable extends Migration
     public function up()
     {
         Schema::create('order', function (Blueprint $table) {
-            $table->char('id', 17)->default('uuid_short()')->primary();
+            $table->char('id', 17)->default(DB::raw('(uuid_short())'))->primary();
             $table->char('user_id', 36)->index('user_id');
             $table->integer('total');
             $table->integer('cart_id');

@@ -4,20 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
-        return json_decode(json_encode(User::all()));
+        return response()->json(User::all());
     }
 
     /**
@@ -38,51 +40,48 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+        try {
+            $attributes = $request->all();
+//            $attributes['password'] = bcrypt($attributes['password']);
+
+            // Magic bcrypt handling for password in UserController
+            User::create($attributes);
+
+            $newlyCreatedUserId = User::whereEmail($request->input('email'))->first()->pluck('id');
+            $newlyCreatedUser = User::findOrFail($newlyCreatedUserId)->first();
+
+            auth()->login($newlyCreatedUser);
+            event(new Registered($newlyCreatedUser));
 
 
-        echo '<pre>', print_r($request->all()), '</pre>';
-
-
-//        $user = new User;
-//        echo '<pre>', print_r($user), '</pre>';
-//        $user->username = "nguyenquoctri";
-//        $user->password = bcrypt('123456');
-//        $user->email = "nguyenquoctri@gmail.com";
-//        $user->phone_number = "0909090909";
-//        $user->last_name = "Nguyễn Quốc";
-//        $user->first_name = "Trí";
-//        $user->birth_date = "1997-04-01";
-//        $user->gender = 0;
-//        $user->address = "Tỉnh Khánh Hòa";
-
-
-//        try{
-//            $user->save();
-//            echo "Người dùng đã được lưu";
-//        } catch (QueryException $e) {
-//            echo '<pre>', print_r($e), '</pre>';
-//            echo "Không sao lưu được";
-//        }
+            $this->attachDesiredRoleToNewlyCreatedUser($attributes['role_id'], $request);
+            return response('Bạn đã đăng ký tài khoản thành công', 200);
+        } catch (QueryException $e) {
+            echo '<pre>', print_r($e), '</pre>';
+            echo "Không sao lưu được";
+        }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public
+    function show($id)
     {
-        //
+        return response()->json(User::findOrFail($id));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public
+    function edit($id)
     {
         //
     }
@@ -90,23 +89,49 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param StoreUserRequest $request
+     * @param int $id
+     * @return Response
      */
-    public function update(Request $request, $id)
+    public
+    function update(StoreUserRequest $request, $id)
     {
-        //
+        $attributes = $request->all();
+        echo '<pre>', print_r($attributes), '</pre>';
+        $editingUser = User::findOrFail($id);
+        $editingUser->update($attributes);
+
+
+        echo '<pre>', print_r($editingUser), '</pre>';
+        echo 'Đã nhận được yêu cầu update';
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public
+    function destroy($id)
     {
         //
+    }
+
+
+    /**
+     * Attach desired role form input to newly created user
+     *
+     * @param $role_id
+     * @param StoreUserRequest $request
+     * @return void
+     */
+    public function attachDesiredRoleToNewlyCreatedUser($role_id, StoreUserRequest $request): void
+    {
+        $desiredRole = UserRole::findOrFail($role_id);
+        $newlyCreatedUserId = User::whereEmail($request->input('email'))->first()->pluck('id');
+
+        $newlyCreatedUser = User::findOrFail($newlyCreatedUserId)->first();
+        $newlyCreatedUser->roles()->attach($desiredRole);
     }
 }

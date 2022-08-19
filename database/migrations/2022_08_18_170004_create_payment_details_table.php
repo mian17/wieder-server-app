@@ -18,7 +18,7 @@ class CreatePaymentDetailsTable extends Migration
             $table->integer('payment_method_id')->index('payment_method_id');
             $table->integer('amount');
             $table->string('status');
-            $table->timestamp('created_at')->uuseCurrent();
+            $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
         });
     }

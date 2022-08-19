@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -18,6 +19,10 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+
+
+
+
         return [
             'id' => fake()->uuid(),
             'username' => fake()->userName(),
@@ -30,11 +35,6 @@ class UserFactory extends Factory
             'address' => fake()->streetAddress(),
             'reward_points' => fake()->randomNumber(4, false),
 
-
-//            'name' => fake()->name(),
-//
-//            'email_verified_at' => now(),
-//            'remember_token' => Str::random(10),
         ];
     }
 

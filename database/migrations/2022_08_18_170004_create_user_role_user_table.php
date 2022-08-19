@@ -15,8 +15,9 @@ class CreateUserRoleUserTable extends Migration
     {
         Schema::create('user_role_user', function (Blueprint $table) {
             $table->bigInteger('id', true);
-            $table->tinyInteger('user_role_id')->index('user_role_id');
             $table->char('user_id', 36)->index('user_id');
+            $table->tinyInteger('user_role_id')->index('user_role_id');
+            $table->unique(['user_role_id', 'user_id']);
         });
     }
 
