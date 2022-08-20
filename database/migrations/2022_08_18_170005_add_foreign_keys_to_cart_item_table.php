@@ -14,7 +14,7 @@ class AddForeignKeysToCartItemTable extends Migration
     public function up()
     {
         Schema::table('cart_item', function (Blueprint $table) {
-            $table->foreign(['user_id'], 'cart_item_ibfk_3')->references(['id'])->on('user');
+            $table->foreign(['user_uuid'], 'cart_item_ibfk_3')->references(['uuid'])->on('user');
             $table->foreign(['product_id'], 'cart_item_ibfk_2')->references(['id'])->on('product');
         });
     }

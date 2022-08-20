@@ -18,7 +18,7 @@ class CreateShippingAddressTable extends Migration
             $table->string('receiver_name');
             $table->string('address');
             $table->string('phone_number');
-            $table->char('user_id', 36)->index('user_id');
+            $table->char('user_uuid', 36)->index('user_uuid');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
         });

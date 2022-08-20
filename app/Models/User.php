@@ -59,7 +59,7 @@ class User extends Authenticatable implements MustVerifyEmail
 {
 
     use HasApiTokens, HasFactory, Notifiable;
-
+    protected $primaryKey='uuid';
 
     /**
      * Since ID type is uuid, to prevent Laravel from decrypting the id
@@ -121,8 +121,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'last_sign_in' => 'datetime',
-
-//        'email_verified_at' => 'datetime',
+        'email_verified_at' => 'timestamp',
     ];
 
     public function setPasswordAttribute($password)

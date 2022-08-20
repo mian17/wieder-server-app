@@ -14,7 +14,7 @@ class AddForeignKeysToShippingAddressTable extends Migration
     public function up()
     {
         Schema::table('shipping_address', function (Blueprint $table) {
-            $table->foreign(['user_id'], 'shipping_address_ibfk_1')->references(['id'])->on('user');
+            $table->foreign(['user_uuid'], 'shipping_address_ibfk_1')->references(['uuid'])->on('user');
         });
     }
 

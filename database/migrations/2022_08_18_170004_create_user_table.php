@@ -15,7 +15,7 @@ class CreateUserTable extends Migration
     public function up()
     {
         Schema::create('user', function (Blueprint $table) {
-            $table->char('id', 36)->default(DB::raw('(UUID())'))->primary();
+            $table->char('uuid', 36)->default(DB::raw('(UUID())'))->primary();
             $table->string('username');
             $table->string('password');
             $table->string('email')->unique();
@@ -30,7 +30,7 @@ class CreateUserTable extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
             $table->rememberToken();
-            $table->dateTime('email_verified_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
         });
     }
 

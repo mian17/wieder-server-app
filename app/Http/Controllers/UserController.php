@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -40,26 +41,26 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        try {
-            $attributes = $request->all();
-//            $attributes['password'] = bcrypt($attributes['password']);
-
-            // Magic bcrypt handling for password in UserController
-            User::create($attributes);
-
-            $newlyCreatedUserId = User::whereEmail($request->input('email'))->first()->pluck('id');
-            $newlyCreatedUser = User::findOrFail($newlyCreatedUserId)->first();
-
-            auth()->login($newlyCreatedUser);
-            event(new Registered($newlyCreatedUser));
-
-
-            $this->attachDesiredRoleToNewlyCreatedUser($attributes['role_id'], $request);
-            return response('Bạn đã đăng ký tài khoản thành công', 200);
-        } catch (QueryException $e) {
-            echo '<pre>', print_r($e), '</pre>';
-            echo "Không sao lưu được";
-        }
+//        try {
+//            $attributes = $request->all();
+////            $attributes['password'] = bcrypt($attributes['password']);
+//
+//            // Magic bcrypt handling for password in UserController
+//            User::create($attributes);
+//
+//            $newlyCreatedUserId = User::whereEmail($request->input('email'))->first()->pluck('uuid');
+//            $newlyCreatedUser = User::findOrFail($newlyCreatedUserId)->first();
+//
+//            auth()->login($newlyCreatedUser);
+//            event(new Registered($newlyCreatedUser));
+//
+//
+//            $this->attachDesiredRoleToNewlyCreatedUser($attributes['role_id'], $request);
+//            return response('Bạn đã đăng ký tài khoản thành công', 200);
+//        } catch (QueryException $e) {
+//            echo '<pre>', print_r($e), '</pre>';
+//            echo "Không sao lưu được";
+//        }
     }
 
     /**
@@ -119,19 +120,22 @@ class UserController extends Controller
     }
 
 
-    /**
-     * Attach desired role form input to newly created user
-     *
-     * @param $role_id
-     * @param StoreUserRequest $request
-     * @return void
-     */
-    public function attachDesiredRoleToNewlyCreatedUser($role_id, StoreUserRequest $request): void
-    {
-        $desiredRole = UserRole::findOrFail($role_id);
-        $newlyCreatedUserId = User::whereEmail($request->input('email'))->first()->pluck('id');
+//    /**
+//     * Attach desired role form input to newly created user
+//     *
+//     * @param $role_id
+//     * @param StoreUserRequest $request
+//     * @return void
+//     */
+//    public function attachDesiredRoleToNewlyCreatedUser($role_id, StoreUserRequest $request): void
+//    {
+//        $desiredRole = UserRole::findOrFail($role_id);
+//        $newlyCreatedUserId = User::whereEmail($request->input('email'))->first()->pluck('uuid');
+//
+//        $newlyCreatedUser = User::findOrFail($newlyCreatedUserId)->first();
+//        $newlyCreatedUser->roles()->attach($desiredRole);
+//    }
 
-        $newlyCreatedUser = User::findOrFail($newlyCreatedUserId)->first();
-        $newlyCreatedUser->roles()->attach($desiredRole);
-    }
+
+
 }
