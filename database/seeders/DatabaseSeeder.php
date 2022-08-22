@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             'gender' => 0,
             'address' => '68 Nguyễn Thị Minh Khai, Quận 1, TP. HCM',
             'reward_points' => 0,
+            'email_verified_at' => now()
         ]);
 
         User::factory(10)->create();

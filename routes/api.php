@@ -3,12 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VerifyEmailController;
+use Illuminate\Support\Facades\Route;
 
 //use App\Http\Requests\EmailVerificationRequest;
-use App\Http\Controllers\VerifyEmailController;
-use App\Http\Requests\EmailVerificationRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,14 +24,6 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-//Route::get('login', [AuthController::class, 'loginPage']);
-
-////////////////////////////////////////////////////////////////////////
-// UserController
-//Route::resource('user', UserController::class);
-
-//Route::post('/login', \App\Http\Controllers\LoginController::class)
-
 
 ////////////////////////////////////////////////////////////////////////
 // Send email to newly registered User
@@ -54,6 +44,7 @@ Route::post('/email/verification-notification', [VerifyEmailController::class, '
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::resource('user', UserController::class);
-    Route::resource('category', CategoryController::class);
+    Route::resource('user', UserController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+    Route::resource('category', CategoryController::class)->only(['']);
 });
+

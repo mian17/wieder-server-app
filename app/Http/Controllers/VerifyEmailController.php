@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\EmailVerificationRequest;
-use App\Http\Requests\ResendEmailVerificationRequest;
+use App\Http\Requests\Email\EmailVerificationRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;

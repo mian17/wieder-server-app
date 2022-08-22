@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Auth\Events\Registered;
-
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
