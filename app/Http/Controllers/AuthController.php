@@ -33,7 +33,7 @@ class AuthController extends Controller
             $newlyCreatedUser->roles()->attach($desiredRole);
 
             // Authorize User register
-            auth()->login($newlyCreatedUser);
+//            Auth::login($newlyCreatedUser);
 
             // Event listener to send email to
             event(new Registered($newlyCreatedUser));
@@ -47,8 +47,11 @@ class AuthController extends Controller
 
             return response($response, 201);
         } catch (QueryException $e) {
-            echo '<pre>', print_r($e), '</pre>';
-            echo "Không sao lưu được";
+//            echo '<pre>', print_r($e), '</pre>';
+            $response = [
+                'message' => 'Không sao lưu được'
+            ];
+            return response($response, 400);
         }
 
     }
@@ -77,12 +80,7 @@ class AuthController extends Controller
             }
 
             $token = $user->createToken('user-token')->plainTextToken;
-            $user->markEmailAsVerified();
-            if($user->hasVerifiedEmail()) {
-                echo "Người dũng đã xác nhận email";
-            } else {
-                echo "Người dùng chưa xác nhận email";
-            }
+
             echo '<pre>', print_r($user), '</pre>';
             $response = [
                 'user' => $user,
@@ -95,7 +93,7 @@ class AuthController extends Controller
             echo '<pre>', print_r($e), '</pre>';
             echo "Không sao lưu được";
         }
-
+        return response(['message'=> 'Hoàn thành thao tác']);
     }
 
     /**
@@ -110,7 +108,5 @@ class AuthController extends Controller
         return response(['message' => 'Bạn đã đăng xuất'], 200);
     }
 
-    public function logInPage() {
-        return view('login');
-    }
+
 }
