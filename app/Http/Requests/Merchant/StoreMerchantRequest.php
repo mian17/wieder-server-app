@@ -32,7 +32,7 @@ class StoreMerchantRequest extends FormRequest
                 'max:15',
                 'unique:merchant,phone_number'
             ],
-            'email' => 'required|email|max:255|unique:user,email',
+            'email' => 'required|email|max:255|unique:merchant,email',
         ];
     }
 

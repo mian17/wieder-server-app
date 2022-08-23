@@ -28,13 +28,14 @@ class DatabaseSeeder extends Seeder
             UserRoleSeeder::class,
             CategorySeeder::class,
             MerchantSeeder::class,
-            DiscountSeeder::class
+            DiscountSeeder::class,
+            WarehouseSeeder::class,
         ]);
 
         User::create([
             'username' => 'admin',
             'password' => '12345678', // password
-            'email' => 'vinh.lethe_1997@icloud.com',
+            'email' => 'alibis_intron.0x@icloud.com',
             'phone_number' => '0586801768',
             'name' => 'Lê Thế Vinh',
             'birth_date' => '1997-01-22',

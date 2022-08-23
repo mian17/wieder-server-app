@@ -5,6 +5,7 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
+use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 //use App\Http\Requests\EmailVerificationRequest;
@@ -47,11 +48,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::resource('user', UserController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
 
-    // TODO:: Upload Image without storing a new category is not working atm
+    // TODO: Upload Image without storing a new category is not working atm
+    // TODO: Extract public routes for client website
+
     Route::resource('category', CategoryController::class);
     Route::resource('merchant', MerchantController::class);
+    Route::resource('discount', DiscountController::class);
+
 });
 
-Route::resource('discount', DiscountController::class);
-
+Route::resource('warehouse', WarehouseController::class);
 

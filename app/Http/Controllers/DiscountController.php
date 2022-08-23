@@ -29,7 +29,7 @@ class DiscountController extends Controller
      * @param StoreDiscountRequest $request
      * @return Response
      */
-    public function store(StoreDiscountRequest $request)
+    public function store(StoreDiscountRequest $request): Response
     {
         try {
             $attributes = $request->all();
@@ -67,16 +67,15 @@ class DiscountController extends Controller
         $desiredDiscount = Discount::findOrFail($id);
         $desiredDiscount->update($attributes);
         return response(['message' => "Cập nhật mã giảm giá thành công", 'discountInfo' => $desiredDiscount], 200);
-
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
      */
-    public function destroy($id)
+    public function destroy(int $id): Response
     {
         Discount::findOrFail($id)->delete();
         return response(['message' => "Đã xóa mã giảm giá thành công"], 200);
