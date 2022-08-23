@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             MerchantSeeder::class,
             DiscountSeeder::class,
             WarehouseSeeder::class,
+            StatusSeeder::class
         ]);
 
         User::create([

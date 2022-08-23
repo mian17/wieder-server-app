@@ -17,6 +17,7 @@ class CreateOrderItemTable extends Migration
             $table->integer('id', true);
             $table->char('order_id', 17)->index('order_id');
             $table->integer('product_id')->index('product_id');
+            $table->integer('price');
             $table->integer('quantity');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();

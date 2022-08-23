@@ -18,7 +18,7 @@ class CreateOrderTable extends Migration
             $table->char('id', 17)->default(DB::raw('(uuid_short())'))->primary();
             $table->char('user_uuid', 36)->index('user_uuid');
             $table->integer('total');
-            $table->integer('cart_id');
+//            $table->integer('cart_id');
             $table->tinyInteger('status_id');
             $table->integer('payment_id')->index('payment_id');
             $table->timestamp('created_at')->useCurrent();

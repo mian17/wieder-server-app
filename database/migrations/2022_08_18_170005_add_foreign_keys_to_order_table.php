@@ -15,6 +15,7 @@ class AddForeignKeysToOrderTable extends Migration
     {
         Schema::table('order', function (Blueprint $table) {
             $table->foreign(['user_uuid'], 'order_ibfk_1')->references(['uuid'])->on('user');
+            $table->foreign(['status_id'], 'order_ibfk_2')->references(['id'])->on('status');
         });
     }
 

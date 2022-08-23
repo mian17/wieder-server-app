@@ -15,7 +15,7 @@ class AddForeignKeysToMerchantProductTable extends Migration
     {
         Schema::table('merchant_product', function (Blueprint $table) {
             $table->foreign(['merchant_id'], 'merchant_product_ibfk_1')->references(['id'])->on('merchant');
-            $table->foreign(['product_id'], 'merchant_product_ibfk_2')->references(['merchant_id'])->on('product');
+            $table->foreign(['product_id'], 'merchant_product_ibfk_2')->references(['id'])->on('product');
         });
     }
 
