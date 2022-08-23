@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Category whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Category whereParentCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Category whereUpdatedAt($value)
- * @mixin \Eloquent
+ *
  */
 class Category extends Model
 {
@@ -41,6 +41,17 @@ class Category extends Model
 //        return $this->belongsTo('Category', 'id');
 //    }
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'parent_category_id',
+        'img_url',
+    ];
+
 
     /**
      * The attributes that should be cast.
@@ -52,4 +63,6 @@ class Category extends Model
         'updated_at' => 'datetime',
 
     ];
+
+
 }

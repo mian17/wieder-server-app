@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserRoleSeeder::class,
             CategorySeeder::class,
+            MerchantSeeder::class
         ]);
 
         User::create([

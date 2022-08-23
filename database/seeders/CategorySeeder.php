@@ -69,7 +69,7 @@ class CategorySeeder extends Seeder
         ]);
         Category::create([
             'name' => 'Bia, Đồ uống',
-            'img_url' => '/public/img/categories/10-category-beer-drinks.jpg',
+            'img_url' => '/img/categories/10-category-beer-drinks.jpg',
             'parent_category_id' => null,
         ]);
         Category::create([

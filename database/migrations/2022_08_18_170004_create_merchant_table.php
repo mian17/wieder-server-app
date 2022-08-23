@@ -16,7 +16,7 @@ class CreateMerchantTable extends Migration
         Schema::create('merchant', function (Blueprint $table) {
             $table->integer('id', true);
             $table->string('name')->unique('name');
-            $table->string('address');
+            $table->string('address')->unique('address');
             $table->string('phone_number')->unique('phone_number');
             $table->string('email')->unique('email');
             $table->timestamp('created_at')->useCurrent();
