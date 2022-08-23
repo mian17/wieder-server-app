@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Merchant\EditMerchantRequest;
 use App\Http\Requests\Merchant\StoreMerchantRequest;
 use App\Models\Merchant;
-use Doctrine\DBAL\Query\QueryException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

@@ -15,10 +15,9 @@ class MerchantSeeder extends Seeder
      */
     public function run()
     {
-        Merchant::create(['name' => fake()->company(), 'address' => fake()->streetAddress(), 'phone_number' => fake()->phoneNumber(), 'email' => fake()->companyEmail()]);
-        Merchant::create(['name' => fake()->company(), 'address' => fake()->streetAddress(), 'phone_number' => fake()->phoneNumber(), 'email' => fake()->companyEmail()]);
-        Merchant::create(['name' => fake()->company(), 'address' => fake()->streetAddress(), 'phone_number' => fake()->phoneNumber(), 'email' => fake()->companyEmail()]);
-        Merchant::create(['name' => fake()->company(), 'address' => fake()->streetAddress(), 'phone_number' => fake()->phoneNumber(), 'email' => fake()->companyEmail()]);
-        Merchant::create(['name' => fake()->company(), 'address' => fake()->streetAddress(), 'phone_number' => fake()->phoneNumber(), 'email' => fake()->companyEmail()]);
+        $iterationCount = 5;
+        for ($i = 0; $i < $iterationCount; $i++) {
+            Merchant::create(['name' => fake()->company(), 'address' => fake()->streetAddress(), 'phone_number' => fake()->phoneNumber(), 'email' => fake()->companyEmail()]);
+        }
     }
 }

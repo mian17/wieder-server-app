@@ -11,10 +11,9 @@ class StoreMerchantRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        // TODO: TURN OFF AFTER TESTING
-        return true;
+        return false;
     }
 
     /**
@@ -22,7 +21,7 @@ class StoreMerchantRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => 'required|string|min:2|max:64|unique:merchant,name',

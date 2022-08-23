@@ -1,0 +1,29 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Discount;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DiscountSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $iterationCount = 5;
+        for ($i = 0; $i < $iterationCount; $i++) {
+            Discount::create([
+                'name' => strtoupper(fake()->word() . fake()->randomNumber(2, true)),
+                'desc' => fake()->sentence(),
+                'total_money_condition' => fake()->randomNumber(6, true),
+                'discount_percent' => fake()->numberBetween(10, 80)
+            ]);
+
+        }
+    }
+}

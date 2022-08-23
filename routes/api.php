@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
@@ -48,8 +49,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // TODO:: Upload Image without storing a new category is not working atm
     Route::resource('category', CategoryController::class);
+    Route::resource('merchant', MerchantController::class);
 });
 
-Route::resource('merchant', MerchantController::class);
+Route::resource('discount', DiscountController::class);
 
 

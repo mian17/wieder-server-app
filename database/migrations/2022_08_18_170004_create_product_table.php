@@ -17,7 +17,7 @@ class CreateProductTable extends Migration
             $table->integer('id', true);
             $table->integer('merchant_id')->index('merchant_id');
             $table->integer('category_id')->index('category_id');
-            $table->bigInteger('discount_id')->index('discount_id');
+            $table->bigInteger('discount_id')->index('discount_id')->nullable();
             $table->text('warehouse_id_group');
             $table->string('name')->unique('name');
             $table->text('summary');
