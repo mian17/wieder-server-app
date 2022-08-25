@@ -112,5 +112,69 @@ class CategorySeeder extends Seeder
             'img_url' => '/img/categories/trai-cay-nhap-khau.jpg',
             'parent_category_id' => 1,
         ]);
+        Category::create([
+            'name' => 'Thịt heo, lợn',
+            'img_url' => '/img/categories/thit-heo-lon.jpg',
+            'parent_category_id' => 2,
+        ]);
+        Category::create([
+            'name' => 'Thịt bò, bê',
+            'img_url' => '/img/categories/thit-bo-be.jpg',
+            'parent_category_id' => 2,
+        ]);
+
+        Category::create([
+            'name' => 'Thịt gà, vịt, chim',
+            'img_url' => '/img/categories/thit-ga-vit-chim.jpg',
+            'parent_category_id' => 2,
+        ]);
+        Category::create([
+            'name' => 'Thịt đông lạnh',
+            'img_url' => '/img/categories/thit-dong-lanh.jpg',
+            'parent_category_id' => 2,
+        ]);
+        Category::create([
+            'name' => 'Các loại thịt khác',
+            'img_url' => '/img/categories/cac-loai-thit-khac.jpg',
+            'parent_category_id' => 2,
+        ]);
+        Category::create([
+            'name' => 'Trứng gà, vịt, cút',
+            'img_url' => '/img/categories/trung-ga-vit-cut.jpg',
+            'parent_category_id' => 2,
+        ]);
+        Category::create([
+            'name' => 'Cá, hải sản đông lạnh',
+            'img_url' => '/img/categories/ca-hai-san-dong-lanh.jpg',
+            'parent_category_id' => 3,
+        ]);
+        Category::create([
+            'name' => 'Củ, quả, măng tươi',
+            'img_url' => '/img/categories/cu-qua-mang-tuoi.jpg',
+            'parent_category_id' => 4,
+        ]);
+        Category::create([
+            'name' => 'Gạo, nếp, đậu',
+            'img_url' => '/img/categories/gao-nep-dau.jpg',
+            'parent_category_id' => 9,
+        ]);
+        Category::create([
+            'name' => 'Bột gạo, mì, bột chiên',
+            'img_url' => '/img/categories/bot-gao-mi-bot-chien.jpg',
+            'parent_category_id' => 9,
+        ]);
+
+
+
+        Category::create([
+            'name' => 'Trà khô, trà đóng chai',
+            'img_url' => '/img/categories/tra-kho-tra-dong-chai.jpg',
+            'parent_category_id' => 11,
+        ]);
+        Category::create([
+            'name' => 'Cà phê hạt, đóng chai',
+            'img_url' => '/img/categories/ca-phe-hat-dong-chai.jpg',
+            'parent_category_id' => 11,
+        ]);
     }
 }

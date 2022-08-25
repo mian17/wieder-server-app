@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -134,9 +135,19 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      *  @return BelongsToMany
      */
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(UserRole::class, 'user_role_user');
+    }
+
+    /**
+     * The user can have many orders
+     *
+     * @return HasMany
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
 }

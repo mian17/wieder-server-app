@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Warehouse\EditWarehouseRequest;
 use App\Http\Requests\Warehouse\StoreWarehouseRequest;
 use App\Models\Warehouse;
 use Illuminate\Database\QueryException;
@@ -56,11 +57,11 @@ class WarehouseController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param  int  $id
+     * @param EditWarehouseRequest $request
+     * @param int $id
      * @return Response
      */
-    public function update(Request $request, $id): Response
+    public function update(EditWarehouseRequest $request, $id): Response
     {
         $attributes = $request->all();
         $desiredWarehouse = Warehouse::findOrFail($id);

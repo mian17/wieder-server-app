@@ -4,17 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
     use HasFactory;
-
+    // TODO: SETUP FOR SHORT UUID
     /**
      * The database connection that should be used by the model.
      *
      * @var string
      */
-    protected $table = "product";
+    protected $table = "order";
 
 
     /**
@@ -23,21 +24,7 @@ class Order extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'user_uuid',
-        'total',
-        'warehouse_id_group',
-        'name',
-        'summary',
-        'desc',
-        'detail_info',
-        'quantity',
-        'SKU',
-        'mass',
-        'cost_price',
-        'price',
-        'unit',
-        'status',
+        'user_uuid', 'total', 'status_id', 'payment_id'
     ];
 
 
@@ -51,4 +38,14 @@ class Order extends Model
         'updated_at' => 'datetime',
 
     ];
+
+    /**
+     * The order table can have many order statuses
+     *
+     * @return HasMany
+     */
+    public function statuses(): HasMany
+    {
+        return $this->hasMany(Status::class);
+    }
 }

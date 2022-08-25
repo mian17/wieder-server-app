@@ -15,7 +15,7 @@ class CreateOrderTable extends Migration
     public function up()
     {
         Schema::create('order', function (Blueprint $table) {
-            $table->char('id', 17)->default(DB::raw('(uuid_short())'))->primary();
+            $table->char('uuid', 17)->default(DB::raw('(uuid_short())'))->primary();
             $table->char('user_uuid', 36)->index('user_uuid');
             $table->integer('total');
 //            $table->integer('cart_id');

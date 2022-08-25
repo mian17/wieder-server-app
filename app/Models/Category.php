@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * App\Models\Category
@@ -63,6 +65,59 @@ class Category extends Model
         'updated_at' => 'datetime',
 
     ];
+
+    /**
+     * Get products that are associated with the category
+     *
+     * @return HasMany
+     */
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    /**
+     * Get subcategories
+     *
+     * @return HasMany
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_category_id');
+    }
+
+    // recursive, loads all descendants of categories
+    public function childrenRecursive(): HasMany
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+//    public function childrenRecursive()
+//    {
+//        return $this->childs()->with('childrenRecursive');
+//    }
+
+
+    /**
+     * Get subcategories and its products
+     *
+     * @return HasMany
+     */
+    public function childrenProducts(): HasMany
+    {
+        return $this->children()->with('products');
+    }
+
+    /**
+     * Get subcategories and its products
+     *
+     * @return HasManyThrough
+     */
+    public function childrenProductsWithModels(): HasManyThrough
+    {
+        return $this->hasManyThrough(Kind::class, Product::class);
+    }
+
+
 
 
 }

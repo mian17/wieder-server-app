@@ -13,9 +13,9 @@ class AddForeignKeysToPaymentMethodTable extends Migration
      */
     public function up()
     {
-        Schema::table('payment_method', function (Blueprint $table) {
-            $table->foreign(['id'], 'payment_method_ibfk_1')->references(['payment_method_id'])->on('payment_details');
-        });
+//        Schema::table('payment_method', function (Blueprint $table) {
+//            $table->foreign(['id'], 'payment_method_ibfk_1')->references(['payment_method_id'])->on('payment_details');
+//        });
     }
 
     /**
@@ -25,8 +25,8 @@ class AddForeignKeysToPaymentMethodTable extends Migration
      */
     public function down()
     {
-        Schema::table('payment_method', function (Blueprint $table) {
-            $table->dropForeign('payment_method_ibfk_1');
-        });
+//        Schema::table('payment_method', function (Blueprint $table) {
+//            $table->dropForeign('payment_method_ibfk_1');
+//        });
     }
 }

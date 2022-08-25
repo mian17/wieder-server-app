@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Merchant\EditMerchantRequest;
 use App\Http\Requests\Merchant\StoreMerchantRequest;
 use App\Models\Merchant;
+use App\Models\Product;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,16 @@ class MerchantController extends Controller
         return response()->json(Merchant::all());
     }
 
+    /**
+     * Display all merchants and their associated products
+     *
+     * @return Response
+     */
+    public function indexWithProducts(): Response
+    {
+        $merchantProducts = Merchant::with('products')->get();
+        return response(['message' => "Hiển thị nhà bán thành công", 'merchant' => $merchantProducts], 200);
+    }
 
 
     /**
@@ -52,6 +63,23 @@ class MerchantController extends Controller
         $desiredMerchant = Merchant::findOrFail($id);
 
         return response(['message' => "Hiển thị nhà bán thành công", 'merchant' => $desiredMerchant], 200);
+    }
+
+    /**
+     * Display a specific merchant and its products.
+     *
+     * @param int $merchant_id
+     * @return Response
+     */
+    public function showWithProducts(int $merchant_id): Response
+    {
+        $desiredMerchant = Merchant::findOrFail($merchant_id);
+
+        // Get products that are associated with this merchant
+        $merchantProducts = $desiredMerchant->products()->get();
+
+
+        return response(['message' => "Hiển thị nhà bán thành công", 'merchant' => $desiredMerchant, 'merchantProducts' => $merchantProducts], 200);
     }
 
 

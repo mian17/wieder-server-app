@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -51,4 +53,26 @@ class Product extends Model
         'updated_at' => 'datetime',
 
     ];
+
+    /**
+     * The product belongs to many merchants
+     *
+     *  @return BelongsToMany
+     */
+    public function merchants(): BelongsToMany
+    {
+        return $this->belongsToMany(Merchant::class, 'merchant_product');
+    }
+
+    /**
+     * The product belongs to many merchants
+     *
+     *  @return HasMany
+     */
+    public function kinds(): HasMany
+    {
+        return $this->hasMany(Kind::class);
+    }
+
+
 }

@@ -3,6 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\MerchantController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
 use App\Http\Controllers\WarehouseController;
@@ -26,6 +29,12 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Public category controller routes
+Route::resource('category', CategoryController::class)->only(['index', 'show']);
+Route::get('parent-categories', [CategoryController::class, 'indexParentCategories']);
+Route::get('/categories/products', [CategoryController::class, 'indexWithProducts']); // for the 'all' category
+Route::get('/category/{category_id}/product', [CategoryController::class, 'showWithProducts']); // for a specific category
 
 ////////////////////////////////////////////////////////////////////////
 // Send email to newly registered User
@@ -51,11 +60,20 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // TODO: Upload Image without storing a new category is not working atm
     // TODO: Extract public routes for client website
 
-    Route::resource('category', CategoryController::class);
-    Route::resource('merchant', MerchantController::class);
+    // Implemented route in client
+    Route::resource('category', CategoryController::class)->only(['store', 'update', 'destroy']);
+
+    // Not yet implemented
     Route::resource('discount', DiscountController::class);
+    Route::resource('warehouse', WarehouseController::class);
+    Route::resource('merchant', MerchantController::class);
+    Route::get('/merchants/products', [MerchantController::class, 'indexWithProducts']);
+    Route::get('/merchant/{merchant_id}/product', [MerchantController::class, 'showWithProducts']);
+    Route::resource('payment-method', PaymentMethodController::class);
 
 });
 
-Route::resource('warehouse', WarehouseController::class);
 
+
+
+Route::resource('product', ProductController::class);

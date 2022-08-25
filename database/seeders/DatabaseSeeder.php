@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Category;
+use App\Models\Merchant;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Database\Seeder;
@@ -30,7 +32,10 @@ class DatabaseSeeder extends Seeder
             MerchantSeeder::class,
             DiscountSeeder::class,
             WarehouseSeeder::class,
-            StatusSeeder::class
+            StatusSeeder::class,
+            PaymentMethodSeeder::class,
+            ProductSeeder::class,
+            ProductModelSeeder::class,
         ]);
 
         User::create([
@@ -47,7 +52,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory(10)->create();
-
+//        Product::factory(2000)->create();
 
 
 
@@ -68,8 +73,10 @@ class DatabaseSeeder extends Seeder
             $user->roles()->attach($roles[rand(0, 2)]);
         }
 
-
-
+        $allMerchants = Merchant::all();
+        foreach(Product::all() as $product) {
+            $product->merchants()->attach($allMerchants[rand(1, 5)]);
+        }
 
 
 

@@ -6,10 +6,14 @@ use App\Http\Requests\Category\EditCategoryRequest;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UploadImageRequest;
 use App\Models\Category;
-use Doctrine\DBAL\Query\QueryException;
+use App\Models\Product;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 
 
 class CategoryController extends Controller
@@ -25,7 +29,27 @@ class CategoryController extends Controller
         return response()->json(Category::all());
     }
 
+    /**
+     * Display a listing of parent categories
+     *
+     * @return JsonResponse
+     */
+    public function indexParentCategories()
+    {
+        $categories = Category::whereNull('parent_category_id')->get();
+        return response()->json($categories);
+    }
 
+    /**
+     * Display all categories with its associated products
+     *
+     * @return Response
+     */
+    public function indexWithProducts(): Response
+    {
+        $categoryProducts = Category::with('products.kinds')->paginate();
+        return response(['message' => "Hiển thị danh mục thành công", 'category' => $categoryProducts], 200);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -54,9 +78,67 @@ class CategoryController extends Controller
     {
         $desired_category = Category::findOrFail($id);
 
-        $subcategory = Category::whereParentCategoryId($id)->get();
+        $subcategory = $desired_category->children()->get();
 
         return response()->json(['desired_category' => $desired_category, 'subcategory' => $subcategory]);
+    }
+
+    /**
+     * Display a specific category and its products.
+     *
+     * @param int $category_id
+     * @return Response
+     */
+    public function showWithProducts(int $category_id): Response
+    {
+        $data = Category::with(['products', 'childrenRecursive', 'childrenRecursive.products.kinds', 'products.kinds'])
+            ->where('id', $category_id)
+            ->get()
+            ->toArray();
+
+        $flatten = $this->flatten($data);
+
+        foreach ($flatten as $key => $fl) {
+            // eliminate categories from $flatten array
+            if (!array_key_exists('category_id', $fl) && !array_key_exists('hex_color', $fl)) {
+                unset($flatten[$key]);
+            }
+        }
+
+
+        $productsAndKinds = array_values($flatten);
+
+        $products = [];
+        $kinds = [];
+        foreach ($productsAndKinds as $item) {
+            if (array_key_exists('category_id', $item)) $products[] = $item;
+            if (array_key_exists('hex_color', $item)) $kinds[] = $item;
+        }
+
+        foreach ($products as &$product) {
+            foreach ($kinds as $kind) {
+                if ($product['id'] === $kind['product_id']) {
+                    $product['kinds'][] = $kind;
+                }
+            }
+        }
+
+        $pagination = $this->paginate($products);
+        return response([
+            'message' => "Hiển thị sản phẩm cho danh mục thành công",
+//            'products' => $products,
+            'pagination' => $pagination,
+        ], 200);
+
+    }
+
+    public function paginate($items, $perPage = 15, $page = null, $options = ['path' => ""])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+//        echo '<pre>', print_r($items), '</pre>';
+        return new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
     }
 
 
@@ -87,9 +169,9 @@ class CategoryController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function destroy($id): Response
+    public function destroy(int $id): Response
     {
         try {
             Category::findOrFail($id)->delete();
@@ -120,5 +202,24 @@ class CategoryController extends Controller
             $attributes['img_url'] = '/' . $movedFile;
         }
         return $attributes;
+    }
+
+    public function flatten($array): array
+    {
+        $flatArray = [];
+        $kindsArray = [];
+        if (!is_array($array)) {
+            $array = (array)$array;
+        }
+
+//        echo '<pre>', print_r($array), '</pre>';
+        foreach ($array as $key => $value) {
+            if (is_array($value) || is_object($value)) {
+                $flatArray = array_merge($flatArray, $this->flatten($value));
+            } else {
+                $flatArray[0][$key] = $value;
+            }
+        }
+        return $flatArray;
     }
 }
