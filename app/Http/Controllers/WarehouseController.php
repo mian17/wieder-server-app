@@ -61,12 +61,31 @@ class WarehouseController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(EditWarehouseRequest $request, $id): Response
+    public function update(EditWarehouseRequest $request, int $id): Response
     {
         $attributes = $request->all();
         $desiredWarehouse = Warehouse::findOrFail($id);
         $desiredWarehouse->update($attributes);
+
+        $desiredWarehouse->products()->attach($attributes['product_id']);
+
         return response(['message' => "Cập nhật nhà kho thành công", 'discountInfo' => $desiredWarehouse], 200);
+    }
+
+
+    /**
+     * Adding a product to warehouse in warehouse_product pivot table
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function addProductToWarehouse(Request $request, int $id): Response
+    {
+        $request->validate(['product_id' => 'required|integer|numeric|min:1']);
+
+        Warehouse::find($id)->products()->attach($request->get('product_id'));
+        return response(['message' => "Thêm sản phẩm vào kho thành công"], 200);
     }
 
     /**
@@ -77,7 +96,8 @@ class WarehouseController extends Controller
      */
     public function destroy(int $id): Response
     {
-        Warehouse::findOrFail($id)->delete();
+        Warehouse::find($id)->products()->detach();
+        Warehouse::find($id)->delete();
         return response(['message' => "Đã xóa nhà kho thành công"], 200);
     }
 }

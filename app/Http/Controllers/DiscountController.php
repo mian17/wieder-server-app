@@ -77,7 +77,7 @@ class DiscountController extends Controller
      */
     public function destroy(int $id): Response
     {
-        Discount::findOrFail($id)->delete();
+        Discount::find($id)->delete();
         return response(['message' => "Đã xóa mã giảm giá thành công"], 200);
     }
 }

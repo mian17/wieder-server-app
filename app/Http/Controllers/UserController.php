@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index()
     {
@@ -22,10 +24,10 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public
-    function show($id)
+    function show(int $id)
     {
         return response()->json(User::findOrFail($id));
     }
@@ -36,10 +38,10 @@ class UserController extends Controller
      *
      * @param StoreUserRequest $request
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public
-    function update(StoreUserRequest $request, $id)
+    function update(StoreUserRequest $request, int $id)
     {
         $attributes = $request->all();
 
@@ -54,10 +56,10 @@ class UserController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public
-    function destroy($id)
+    function destroy(int $id)
     {
         //
     }

@@ -17,7 +17,7 @@ class CreateModelTable extends Migration
             $table->integer('id', true);
             $table->string('name');
             $table->string('image_1');
-            $table->string('image_2');
+            $table->string('image_2')->nullable();
             $table->string('hex_color');
             $table->integer('product_id')->index('product_id');
             $table->timestamp('created_at')->useCurrent();

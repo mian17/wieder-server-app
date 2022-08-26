@@ -24,7 +24,7 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         return response()->json(Category::all());
     }
@@ -34,7 +34,7 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    public function indexParentCategories()
+    public function indexParentCategories(): JsonResponse
     {
         $categories = Category::whereNull('parent_category_id')->get();
         return response()->json($categories);
@@ -111,8 +111,12 @@ class CategoryController extends Controller
         $products = [];
         $kinds = [];
         foreach ($productsAndKinds as $item) {
-            if (array_key_exists('category_id', $item)) $products[] = $item;
-            if (array_key_exists('hex_color', $item)) $kinds[] = $item;
+            if (array_key_exists('category_id', $item)) {
+                $products[] = $item;
+            }
+            if (array_key_exists('hex_color', $item)) {
+                $kinds[] = $item;
+            }
         }
 
         foreach ($products as &$product) {
@@ -126,18 +130,20 @@ class CategoryController extends Controller
         $pagination = $this->paginate($products);
         return response([
             'message' => "Hiển thị sản phẩm cho danh mục thành công",
-//            'products' => $products,
             'pagination' => $pagination,
         ], 200);
 
     }
 
-    public function paginate($items, $perPage = 15, $page = null, $options = ['path' => ""])
+    public function paginate($items, $perPage = 15, $page = null, $options = ['path' => ""]): LengthAwarePaginator
     {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        if (Paginator::resolveCurrentPage()) {
+            $page = $page ?: (Paginator::resolveCurrentPage());
+        } else {
+            $page = $page ?: (1);
+        }
 
         $items = $items instanceof Collection ? $items : Collection::make($items);
-//        echo '<pre>', print_r($items), '</pre>';
         return new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
     }
 
@@ -160,9 +166,9 @@ class CategoryController extends Controller
         if ($imageExistsInDb) {
             $editingCategory->update($attributes);
             return response(['message' => "Cập nhật danh mục thành công"], 200);
-        } else {
-            return response(['message' => "Cập nhật danh mục không thành công"], 401);
         }
+
+        return response(['message' => "Cập nhật danh mục không thành công"], 401);
     }
 
     /**
@@ -174,7 +180,7 @@ class CategoryController extends Controller
     public function destroy(int $id): Response
     {
         try {
-            Category::findOrFail($id)->delete();
+            Category::find($id)->delete();
             return response(["message" => "Đã nhận được yêu cầu xóa danh mục"], 200);
         } catch (QueryException $e) {
             return response(["message" => "Không xóa danh mục được", "error" => $e], 401);
@@ -207,7 +213,6 @@ class CategoryController extends Controller
     public function flatten($array): array
     {
         $flatArray = [];
-        $kindsArray = [];
         if (!is_array($array)) {
             $array = (array)$array;
         }

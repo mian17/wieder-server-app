@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\KindController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PaymentMethodController;
@@ -64,16 +65,22 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('category', CategoryController::class)->only(['store', 'update', 'destroy']);
 
     // Not yet implemented
+    Route::resource('product', ProductController::class);
+    Route::resource('kind', KindController::class);
+
     Route::resource('discount', DiscountController::class);
+    Route::resource('payment-method', PaymentMethodController::class);
     Route::resource('warehouse', WarehouseController::class);
+    //Route::put('/warehouse-update-product/{id}', [WarehouseController::class, 'addProductToWarehouse']);
+
     Route::resource('merchant', MerchantController::class);
     Route::get('/merchants/products', [MerchantController::class, 'indexWithProducts']);
     Route::get('/merchant/{merchant_id}/product', [MerchantController::class, 'showWithProducts']);
-    Route::resource('payment-method', PaymentMethodController::class);
 
 });
 
 
 
 
-Route::resource('product', ProductController::class);
+
+

@@ -11,8 +11,9 @@ class StoreUserRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
+        // TODO: TURN OFF AFTER TESTING
         return true;
     }
 
@@ -21,7 +22,7 @@ class StoreUserRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'username' => 'required|min:3|max:64|unique:user,username',
@@ -46,7 +47,7 @@ class StoreUserRequest extends FormRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'username.required' => 'Bạn cần nhập tên người dùng',

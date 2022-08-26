@@ -95,8 +95,11 @@ class MerchantController extends Controller
         $attributes = $request->all();
         $desiredMerchant = Merchant::findOrFail($id);
         $desiredMerchant->update($attributes);
-        return response(['message' => "Cập nhật nhà bán thành công", 'merchant' => $desiredMerchant], 200);
 
+        // Add a product to a merchant
+        $desiredMerchant->products()->attach($attributes['product_id']);
+
+        return response(['message' => "Cập nhật nhà bán thành công", 'merchant' => $desiredMerchant], 200);
     }
 
     /**
@@ -107,8 +110,7 @@ class MerchantController extends Controller
      */
     public function destroy(int $id): Response
     {
-        Merchant::findOrFail($id)->delete();
+        Merchant::find($id)->delete();
         return response(['message' => "Đã xóa nhà bán thành công"], 200);
-
     }
 }

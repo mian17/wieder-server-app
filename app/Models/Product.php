@@ -27,7 +27,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'category_id',
-        'discount_id',
+//        'discount_id',
         'warehouse_id_group',
         'name',
         'summary',
@@ -62,6 +62,16 @@ class Product extends Model
     public function merchants(): BelongsToMany
     {
         return $this->belongsToMany(Merchant::class, 'merchant_product');
+    }
+
+    /**
+     * The product belongs to many warehouses
+     *
+     *  @return BelongsToMany
+     */
+    public function warehouses(): BelongsToMany
+    {
+        return $this->belongsToMany(Warehouse::class, 'warehouse_product');
     }
 
     /**
