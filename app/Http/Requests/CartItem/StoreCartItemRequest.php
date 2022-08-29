@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Category;
+namespace App\Http\Requests\CartItem;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EditCategoryRequest extends FormRequest
+class StoreCartItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,6 +13,7 @@ class EditCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        // TODO: TURN THIS OFF AFTER TESTING
         return false;
     }
 
@@ -24,10 +25,9 @@ class EditCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:2|max:64',
-            'img_url' => 'required|min:4|max:255|unique:category,img_url',
-            'img_file' => 'image|mimes:png,jpg,jpeg|max:2048',
-            'parent_category_id' => 'integer|numeric|min:0',
+            'name' => 'required|string|min:2|max:64|unique:category,name',
+            'user_uuid' => 'required|string|',
+            'quantity' => 'required|integer|numeric|min:1',
         ];
     }
 

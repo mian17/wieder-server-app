@@ -6,6 +6,8 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class UserController extends Controller
 {
@@ -14,7 +16,7 @@ class UserController extends Controller
      *
      * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         return response()->json(User::all());
     }
@@ -26,10 +28,20 @@ class UserController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public
-    function show(int $id)
+    public function show(int $id): JsonResponse
     {
         return response()->json(User::findOrFail($id));
+    }
+
+    public function showLoggedInUserInfo()
+    {
+        $user = auth()->user();
+
+        return response([
+            'message' => 'Lấy thông tin người dùng đang đăng nhập thành công',
+            'user' => $user
+
+        ]);
     }
 
 
@@ -41,7 +53,7 @@ class UserController extends Controller
      * @return JsonResponse
      */
     public
-    function update(StoreUserRequest $request, int $id)
+    function update(StoreUserRequest $request, int $id): JsonResponse
     {
         $attributes = $request->all();
 
@@ -58,11 +70,22 @@ class UserController extends Controller
      * @param int $id
      * @return Response
      */
-    public
-    function destroy(int $id)
+    public function destroy(int $id)
     {
         //
     }
 
+    /**
+     * Get items in a user's cart
+     *
+     * @param $uuid
+     * @return Response
+     */
+    public function getCartItemsFromAUser($uuid): Response
+    {
+        $itemsInCart = User::find($uuid)->cartItems;
+
+        return response(['message' => 'Lấy các sản phẩm trong giỏ hàng người dùng thành công', 'itemsInCart' => $itemsInCart]);
+    }
 
 }

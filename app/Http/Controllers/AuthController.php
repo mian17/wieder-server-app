@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
 use App\Models\UserRole;
@@ -9,6 +10,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -22,6 +24,7 @@ class AuthController extends Controller
     public function register(StoreUserRequest $request)
     {
         try {
+
             $attributes = $request->all();
             User::create($attributes);
 
@@ -51,22 +54,18 @@ class AuthController extends Controller
             ];
             return response($response, 400);
         }
-
     }
 
     /**
      * Public route to log in
-     * @param StoreUserRequest $request
+     * @param LoginRequest $request
      * @return Response
      */
 
-    public function login(Request $request)
+    public function login(LoginRequest $request): Response
     {
         try {
-            $attributes = $request->validate([
-                'email' => 'required|string',
-                'password' => 'required|string',
-            ]);
+            $attributes = $request->all();
 
             // Check email
             $user = User::whereEmail($attributes['email'])->first();
@@ -77,18 +76,24 @@ class AuthController extends Controller
                 return response(['message' => 'Email hoặc mật khẩu sai'], 401);
             }
 
-            $token = $user->createToken('user-token')->plainTextToken;
+            if (Auth::attempt($attributes)) {
+                if ($user->hasVerifiedEmail()) {
+                    $request->session()->regenerate();
+                } else {
+                    return response(['message' => 'Bạn chưa xác nhận email'], 401);
+                }
+            }
 
-            echo '<pre>', print_r($user), '</pre>';
+            $token = auth()->user()->createToken('user-token')->plainTextToken;
+            $user = auth()->user();
+
             $response = [
                 'user' => $user,
                 'token' => $token,
-
             ];
 
             return response($response, 201);
         } catch (QueryException $e) {
-            echo '<pre>', print_r($e), '</pre>';
             echo "Không sao lưu được";
         }
         return response(['message'=> 'Hoàn thành thao tác']);

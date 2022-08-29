@@ -142,6 +142,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * The user can have many items in cart
+     *
+     * @return HasMany
+     */
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    /**
      * The user can have many orders
      *
      * @return HasMany
@@ -150,5 +160,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Order::class);
     }
+
+
 
 }

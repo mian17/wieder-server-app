@@ -36,7 +36,7 @@ class StoreUserRequest extends FormRequest
             ],
             'name' => 'required|min:4|max:255',
             'birth_date' => 'required|date',
-            'gender' => 'required|integer|numeric|between:1,3',
+            'gender' => 'required|integer|numeric|between:0,2',
             'address' => 'required|string|max:255',
             'role_id' => 'required|numeric|integer|between:1,3',
         ];

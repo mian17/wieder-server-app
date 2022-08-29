@@ -26,10 +26,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-////////////////////////////////////////////////////////////////////////
-// Public routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+
 
 // Public category controller routes
 Route::resource('category', CategoryController::class)->only(['index', 'show']);
@@ -55,6 +52,7 @@ Route::post('/email/verification-notification', [VerifyEmailController::class, '
 // Protected Routes
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user/account/profile', [UserController::class, 'showLoggedInUserInfo']);
 
     Route::resource('user', UserController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
 
@@ -81,6 +79,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 
 
+Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
 
 
 
