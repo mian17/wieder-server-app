@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -34,7 +35,7 @@ class UserFactory extends Factory
             'gender' => fake()->numberBetween(0, 2),
             'address' => fake()->streetAddress(),
             'reward_points' => fake()->randomNumber(4, false),
-
+            'email_verified_at' => Carbon::now()->format('Y-m-d h:i:s'),
         ];
     }
 

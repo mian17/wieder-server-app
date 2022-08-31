@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CartItem extends Model
 {
@@ -25,6 +26,7 @@ class CartItem extends Model
     protected $fillable = [
         'user_uuid',
         'product_id',
+        'model_id',
         'quantity',
     ];
 
@@ -46,5 +48,15 @@ class CartItem extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * One user can have many cart items
+     *
+     * @return HasMany
+     */
+    public function products(): HasMany
+    {
+        return $this->HasMany(Product::class);
     }
 }

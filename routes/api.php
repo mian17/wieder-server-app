@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\KindController;
 use App\Http\Controllers\MerchantController;
@@ -75,11 +76,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/merchants/products', [MerchantController::class, 'indexWithProducts']);
     Route::get('/merchant/{merchant_id}/product', [MerchantController::class, 'showWithProducts']);
 
+    Route::resource('cart', CartItemController::class);
+    Route::get('/user-cart', [CartItemController::class, 'getCartItemsFromAuthorizedUser']);
+
 });
 
 
 
-Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
-
+//Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
 
 

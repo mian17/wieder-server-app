@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Constraints
@@ -41,15 +43,21 @@ class CartItemController extends Controller
     public function store(Request $request): Response
     {
         $request->validate([
-            'user_uuid' => 'required|string',
             'product_id' => 'required|numeric|integer|min:1',
+            'model_id' => 'required|numeric|integer|min:1',
             'quantity' => 'required|numeric|integer|min:1'
         ]);
 
         $attributes = $request->all();
+        $attributes['user_uuid'] = $request->user()->uuid;
 
-        CartItem::create($attributes);
-        return response(['message' => 'Đã thêm sản phẩm vào giỏ hàng người dùng thành công'], 200);
+        $createdCart = CartItem::create($attributes);
+
+        return response([
+            'message' => 'Thêm giỏ hàng thành công',
+            'createdCart' => $createdCart
+        ], 200);
+
     }
 
 //    /**
@@ -71,9 +79,22 @@ class CartItemController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): Response
     {
-        //
+        $user_uuid = auth()->user()->uuid;
+        $request->validate([
+            'quantity' => 'required|integer|numeric',
+        ]);
+
+        $cartItem = CartItem::where('user_uuid', $user_uuid)
+            ->where('id', $id)
+            ->update($request->all());
+
+
+        return response([
+            'message' => "Cập nhật giỏ hàng thành công",
+            "updatedCart" => $cartItem
+        ], 200);
     }
 
     /**
@@ -84,6 +105,43 @@ class CartItemController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user_uuid = auth()->user()->uuid;
+
+        CartItem::where('user_uuid', $user_uuid)
+            ->where('id', $id)
+            ->delete();
+        return response([
+            'message' => "Xóa sản phẩm khỏi giỏ hàng thành công",
+        ], 200);
+    }
+
+    /**
+     * Return stored cart items from database to a authorized user.
+     *
+     * @return Response
+     */
+    public function getCartItemsFromAuthorizedUser(): Response
+    {
+        $user_uuid = auth()->user()->uuid;
+
+        $cart = DB::table('cart_item')
+            ->where('user_uuid', $user_uuid)
+            ->join('product', 'product_id', '=', 'product.id')
+            ->join('model', 'model_id', '=', 'model.id')
+            ->select(
+                'cart_item.id',
+                'cart_item.product_id',
+                'cart_item.model_id',
+                'model.image_1',
+                'model.name',
+                'product.price',
+                'cart_item.quantity',
+            )
+            ->get();
+
+        return response([
+            'message' => 'Lấy các sản phẩm trong giỏ hàng người dùng thành công',
+            'itemsInCart' => $cart,
+        ]);
     }
 }

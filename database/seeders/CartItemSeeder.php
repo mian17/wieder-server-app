@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\CartItem;
+use App\Models\Kind;
 use App\Models\Product;
 use App\Models\User;
 use Exception;
@@ -20,47 +21,35 @@ class CartItemSeeder extends Seeder
     public function run()
     {
         $adminUserUuid = User::whereUsername('admin')->pluck('uuid')->first();
-        $products = Product::all()->pluck('id')->toArray();
 
         // Admin cart
-        CartItem::create([
-            'user_uuid' => $adminUserUuid,
-            'product_id' => $products[random_int(0, 13)],
-            'quantity' => fake()->randomNumber(2, true)
-        ]);
-        CartItem::create([
-            'user_uuid' => $adminUserUuid,
-            'product_id' => $products[random_int(0, 13)],
-            'quantity' => fake()->randomNumber(2, true)
-        ]);
-        CartItem::create([
-            'user_uuid' => $adminUserUuid,
-            'product_id' => $products[random_int(0, 13)],
-            'quantity' => fake()->randomNumber(2, true)
-        ]);
-        CartItem::create([
-            'user_uuid' => $adminUserUuid,
-            'product_id' => $products[random_int(0, 13)],
-            'quantity' => fake()->randomNumber(2, true)
-        ]);
+        for ($i = 0; $i < 3; $i++) {
+            $productId = Product::inRandomOrder()->first()->id;
+            $kindId = Kind::where('product_id', $productId)->inrandomOrder()->first()->id;
+
+            CartItem::create([
+                'user_uuid' => $adminUserUuid,
+                'product_id' => $productId,
+                'model_id' => $kindId,
+                'quantity' => fake()->randomNumber(2, true)
+            ]);
+        }
+
+
 
         // User seed cart
         $userUuid = User::latest()->pluck('uuid')->first();
 
-        CartItem::create([
-            'user_uuid' => $userUuid,
-            'product_id' => $products[random_int(0, 13)],
-            'quantity' => fake()->randomNumber(2, true)
-        ]);
-        CartItem::create([
-            'user_uuid' => $userUuid,
-            'product_id' => $products[random_int(0, 13)],
-            'quantity' => fake()->randomNumber(2, true)
-        ]);
-        CartItem::create([
-            'user_uuid' => $userUuid,
-            'product_id' => $products[random_int(0, 13)],
-            'quantity' => fake()->randomNumber(2, true)
-        ]);
+        for ($i = 0; $i < 3; $i++) {
+            $productId = Product::inRandomOrder()->first()->id;
+            $kindId = Kind::where('product_id', $productId)->inrandomOrder()->first()->id;
+
+            CartItem::create([
+                'user_uuid' => $userUuid,
+                'product_id' => $productId,
+                'model_id' => $kindId,
+                'quantity' => fake()->randomNumber(2, true)
+            ]);
+        }
     }
 }
