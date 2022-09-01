@@ -19,7 +19,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
 //        $warehouse_groups = ['1_2', '2_3', '3_4', '1_5', '1_3', '1_4', '1_2_3', '2_3_4', '3_4_5', '1_2_3_4_5'];
-        $status = ["Hiển thị", "Ẩn"];
+//        $status = ["Hiển thị", "Ẩn"];
 
         Product::create([
             'name' => 'Dưa hấu',
@@ -34,7 +34,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 100000,
             'price' => 50000,
             'unit' => "g",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -51,7 +51,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 140000,
             'price' => 120000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -68,7 +68,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 80000,
             'price' => 60000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -85,7 +85,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 200000,
             'price' => 200000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -102,7 +102,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 30000,
             'price' => 20000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -120,7 +120,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 150000,
             'price' => 120000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -140,7 +140,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 96000,
             'price' => 57000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -157,7 +157,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 20000,
             'price' => 20000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -174,7 +174,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 240000,
             'price' => 180000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -191,7 +191,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 28000,
             'price' => 14000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -208,7 +208,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 18000,
             'price' => 14000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -225,7 +225,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 28000,
             'price' => 14000,
             'unit' => "Hộp",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -242,7 +242,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 48000,
             'price' => 30000,
             'unit' => "Chai",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -259,7 +259,7 @@ class ProductSeeder extends Seeder
             'cost_price' => 48000,
             'price' => 30000,
             'unit' => "kg",
-            'status' => $status[random_int(0, 1)],
+            'status' => "Hiển thị",
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);

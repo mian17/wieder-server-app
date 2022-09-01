@@ -77,6 +77,17 @@ class Category extends Model
     }
 
     /**
+     * getAvailableProducts
+     *
+     */
+    public function getAvailableProducts()
+    {
+        return $this->products()->where('status', '=', 'Hiển thị');
+    }
+
+
+
+    /**
      * Get subcategories
      *
      * @return HasMany
@@ -97,25 +108,25 @@ class Category extends Model
 //    }
 
 
-    /**
-     * Get subcategories and its products
-     *
-     * @return HasMany
-     */
-    public function childrenProducts(): HasMany
-    {
-        return $this->children()->with('products');
-    }
-
-    /**
-     * Get subcategories and its products
-     *
-     * @return HasManyThrough
-     */
-    public function childrenProductsWithModels(): HasManyThrough
-    {
-        return $this->hasManyThrough(Kind::class, Product::class);
-    }
+//    /**
+//     * Get subcategories and its products
+//     *
+//     * @return HasMany
+//     */
+//    public function childrenProducts(): HasMany
+//    {
+//        return $this->children()->with('products');
+//    }
+//
+//    /**
+//     * Get subcategories and its products
+//     *
+//     * @return HasManyThrough
+//     */
+//    public function childrenProductsWithModels(): HasManyThrough
+//    {
+//        return $this->hasManyThrough(Kind::class, Product::class);
+//    }
 
 
 

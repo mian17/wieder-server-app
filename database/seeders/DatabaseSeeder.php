@@ -35,8 +35,8 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             PaymentMethodSeeder::class,
             ProductSeeder::class,
-            ProductModelSeeder::class,
-
+            KindSeeder::class,
+            KindImageSeeder::class,
         ]);
 
         User::create([

@@ -57,7 +57,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::resource('user', UserController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
 
-    // TODO: Upload Image without storing a new category is not working atm
+    // TODO: Upload KindImage without storing a new category is not working atm
     // TODO: Extract public routes for client website
 
     // Implemented route in client

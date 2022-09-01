@@ -91,10 +91,11 @@ class CategoryController extends Controller
      */
     public function showWithProducts(int $category_id): Response
     {
-        $data = Category::with(['products', 'childrenRecursive', 'childrenRecursive.products.kinds', 'products.kinds'])
+        $data = Category::with(['childrenRecursive.getAvailableProducts.kinds'])
             ->where('id', $category_id)
             ->get()
             ->toArray();
+
 
         $flatten = $this->flatten($data);
 
