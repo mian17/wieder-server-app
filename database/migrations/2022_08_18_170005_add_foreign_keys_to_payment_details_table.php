@@ -14,7 +14,8 @@ class AddForeignKeysToPaymentDetailsTable extends Migration
     public function up()
     {
         Schema::table('payment_details', function (Blueprint $table) {
-            $table->foreign(['id'], 'payment_details_ibfk_1')->references(['payment_id'])->on('order');
+//            $table->foreign(['id'], 'payment_details_ibfk_1')->references(['payment_id'])->on('order');
+            $table->foreign(['uuid'], 'payment_details_ibfk_1')->references(['uuid'])->on('order');
             $table->foreign(['payment_method_id'], 'payment_details_ibfk_2')->references(['id'])->on('payment_method');
         });
     }

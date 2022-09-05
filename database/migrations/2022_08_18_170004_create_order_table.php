@@ -15,12 +15,17 @@ class CreateOrderTable extends Migration
     public function up()
     {
         Schema::create('order', function (Blueprint $table) {
-            $table->char('uuid', 17)->default(DB::raw('(uuid_short())'))->primary();
-            $table->char('user_uuid', 36)->index('user_uuid');
+            $table->uuid()->primary();
+//            $table->char('uuid', 17)->default(DB::raw('(uuid_short())'))->primary();
+            $table->char('user_uuid', 36)->index('user_uuid')->nullable();
+            $table->string('receiver_name');
+            $table->string('receiver_email');
+            $table->string('receiver_phone_number');
+            $table->string('receiver_address');
             $table->integer('total');
 //            $table->integer('cart_id');
             $table->tinyInteger('status_id');
-            $table->integer('payment_id')->index('payment_id');
+//            $table->integer('payment_id')->index('payment_id');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
         });

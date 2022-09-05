@@ -4,7 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
+/**
+ *  Renamed Kind for model table to avoid Model class name collision
+ *
+ */
 class Kind extends Model
 {
     use HasFactory;
@@ -41,5 +47,13 @@ class Kind extends Model
         'updated_at' => 'datetime',
 
     ];
-
+    /**
+     * Get model images for product
+     *
+     * @return HasMany
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(KindImage::class, 'model_id');
+    }
 }

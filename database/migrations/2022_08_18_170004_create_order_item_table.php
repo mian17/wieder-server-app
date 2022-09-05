@@ -15,8 +15,9 @@ class CreateOrderItemTable extends Migration
     {
         Schema::create('order_item', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->char('order_uuid', 17)->index('order_uuid');
+            $table->char('order_uuid', 36)->index('order_uuid');
             $table->integer('product_id')->index('product_id');
+            $table->integer('model_id')->index('model_id');
             $table->integer('price');
             $table->integer('quantity');
             $table->timestamp('created_at')->useCurrent();

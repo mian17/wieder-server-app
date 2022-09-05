@@ -4,19 +4,34 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class KindImage extends Model
+class PaymentDetails extends Model
 {
     use HasFactory;
+
+    protected $primaryKey='uuid';
+
+    /**
+     * Since ID type is uuid, to prevent Laravel from decrypting the id
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
+     * Prevent Model from incrementing
+     *
+     * @var bool
+     */
+    public $incrementing = false;
 
     /**
      * The database connection that should be used by the model.
      *
      * @var string
      */
-    protected $table = "image";
+    protected $table = "payment_details";
+
 
     /**
      * The attributes that are mass assignable.
@@ -24,9 +39,12 @@ class KindImage extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'model_id',
-        'url',
+        'uuid',
+        'payment_method_id',
+        'amount',
+        'status',
     ];
+
 
     /**
      * The attributes that should be cast.
@@ -37,13 +55,4 @@ class KindImage extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-    /**
-     * Get model images for product
-     *
-     * @return BelongsTo
-     */
-    public function images(): BelongsTo
-    {
-        return $this->belongsTo(Kind::class);
-    }
 }

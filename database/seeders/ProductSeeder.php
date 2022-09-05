@@ -18,11 +18,10 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-//        $warehouse_groups = ['1_2', '2_3', '3_4', '1_5', '1_3', '1_4', '1_2_3', '2_3_4', '3_4_5', '1_2_3_4_5'];
-//        $status = ["Hiển thị", "Ẩn"];
 
         Product::create([
             'name' => 'Dưa hấu',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 18,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -40,6 +39,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Dâu tây',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 19,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -57,6 +57,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Măng cụt',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 18,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -74,6 +75,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Chanh nhập khẩu',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 19,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -91,6 +93,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Thanh long',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 18,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -109,6 +112,7 @@ class ProductSeeder extends Seeder
 
         Product::create([
             'name' => 'Táo',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 19,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -129,6 +133,7 @@ class ProductSeeder extends Seeder
 
         Product::create([
             'name' => 'Thịt bò',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 21,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -146,6 +151,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Trứng gà',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 25,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -163,6 +169,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Cá hồi',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 26,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -180,6 +187,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Gạo 5kg',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 28,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -197,6 +205,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Dưa leo',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 27,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -214,6 +223,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Mì ý',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 29,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -231,6 +241,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Trà matcha đóng chai',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 30,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),
@@ -248,6 +259,7 @@ class ProductSeeder extends Seeder
         ]);
         Product::create([
             'name' => 'Cà phê dạng hạt Arabica',
+            'brand' => 'New Zealand WholeFood',
             'category_id' => 31,
 //            'warehouse_id_group' => $warehouse_groups[rand(0, 9)],
             'summary' => fake()->text(),

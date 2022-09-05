@@ -20,6 +20,7 @@ class CreateProductTable extends Migration
 //            $table->bigInteger('discount_id')->index('discount_id')->nullable();
 //            $table->text('warehouse_id_group');
             $table->string('name')->unique('name');
+            $table->string('brand');
             $table->text('summary');
             $table->text('desc');
             $table->text('detail_info');

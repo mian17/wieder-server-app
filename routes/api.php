@@ -6,6 +6,7 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\KindController;
 use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -35,6 +36,7 @@ Route::get('parent-categories', [CategoryController::class, 'indexParentCategori
 Route::get('/categories/products', [CategoryController::class, 'indexWithProducts']); // for the 'all' category
 Route::get('/category/{category_id}/product', [CategoryController::class, 'showWithProducts']); // for a specific category
 
+Route::resource('product', ProductController::class)->only(['show']);
 ////////////////////////////////////////////////////////////////////////
 // Send email to newly registered User
 Route::get('/email/verify', function () {
@@ -64,11 +66,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('category', CategoryController::class)->only(['store', 'update', 'destroy']);
 
     // Not yet implemented
-    Route::resource('product', ProductController::class);
+    Route::resource('product', ProductController::class)->except(['show']);
     Route::resource('kind', KindController::class);
 
     Route::resource('discount', DiscountController::class);
-    Route::resource('payment-method', PaymentMethodController::class);
     Route::resource('warehouse', WarehouseController::class);
     //Route::put('/warehouse-update-product/{id}', [WarehouseController::class, 'addProductToWarehouse']);
 
@@ -79,9 +80,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('cart', CartItemController::class);
     Route::get('/user-cart', [CartItemController::class, 'getCartItemsFromAuthorizedUser']);
 
+
 });
 
-
+//Route::resource('order', OrderController::class)->only(['store']);
+Route::resource('payment-method', PaymentMethodController::class)->only(['index']);
+Route::resource('order', OrderController::class);
 
 //Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
 

@@ -16,6 +16,7 @@ class AddForeignKeysToOrderItemTable extends Migration
         Schema::table('order_item', function (Blueprint $table) {
             $table->foreign(['order_uuid'], 'order_item_ibfk_1')->references(['uuid'])->on('order');
             $table->foreign(['product_id'], 'order_item_ibfk_2')->references(['id'])->on('product');
+            $table->foreign(['model_id'], 'order_item_ibfk_3')->references(['id'])->on('model');
         });
     }
 
@@ -28,6 +29,7 @@ class AddForeignKeysToOrderItemTable extends Migration
     {
         Schema::table('order_item', function (Blueprint $table) {
             $table->dropForeign('order_item_ibfk_1');
+            $table->dropForeign('order_item_ibfk_2');
             $table->dropForeign('order_item_ibfk_2');
         });
     }

@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -53,8 +54,27 @@ class ProductController extends Controller
      */
     public function show(int $id): Response
     {
-        $desiredProduct = Product::with('kinds')->findOrFail($id);
+        // 1st implementation
+//        $desiredProduct = Product::with('kinds')->findOrFail($id);
 
+        // 2nd implementation
+//        $desiredProduct = DB::table('product')
+//            ->where('product.id', $id)
+//            ->join('model', 'product.id', '=', 'model.product_id')
+//            ->join('image', 'model.id', '=', 'image.model_id')
+//            ->select(
+//                'model.id as model_id',
+//                'product.id as product_id',
+//                'product.name as product_name',
+//                'model.name as model_name',
+//                'image.url as image_url'
+//            )
+////            ->groupBy('url')
+//        ->get();
+
+        // 3rd implementation
+
+        $desiredProduct = Product::find($id)->load(['kinds', 'kinds.images']);
         return response([
             'message' => "Hiển thị sản phẩm thành công",
             "product" => $desiredProduct

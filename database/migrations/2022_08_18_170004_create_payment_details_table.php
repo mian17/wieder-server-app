@@ -14,7 +14,7 @@ class CreatePaymentDetailsTable extends Migration
     public function up()
     {
         Schema::create('payment_details', function (Blueprint $table) {
-            $table->integer('id', true);
+            $table->char('uuid', 36)->index('uuid')->primary();
             $table->integer('payment_method_id')->index('payment_method_id');
             $table->integer('amount');
             $table->string('status');

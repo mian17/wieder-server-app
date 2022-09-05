@@ -26,7 +26,6 @@ class EditPaymentMethodRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:2|max:64|unique:payment_method,name',
-
         ];
     }
 
