@@ -80,4 +80,17 @@ class DiscountController extends Controller
         Discount::find($id)->delete();
         return response(['message' => "Đã xóa mã giảm giá thành công"], 200);
     }
+
+//    /**
+//     * Check if discount code is available
+//     *
+//     * @param Request $request
+//     * @return Response
+//     */
+//    public function checkDiscountCode(Request $request): Response
+//    {
+//        Discount::whereName($request->get('discount_code'))->exists();
+//        return response(['message' => "Đã xóa mã giảm giá thành công"], 200);
+//    }
+
 }

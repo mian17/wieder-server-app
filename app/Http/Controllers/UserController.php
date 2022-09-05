@@ -88,4 +88,22 @@ class UserController extends Controller
         return response(['message' => 'Lấy các sản phẩm trong giỏ hàng người dùng thành công', 'itemsInCart' => $itemsInCart]);
     }
 
+    /**
+     * If receiver info is the authorized user
+     *
+     * @return JsonResponse
+     */
+    public function autoCompleteInputField(): JsonResponse
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Bạn chưa đăng nhập']);
+        }
+
+        return response()->json($user);
+
+
+    }
+
 }

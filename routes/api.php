@@ -64,6 +64,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // Implemented route in client
     Route::resource('category', CategoryController::class)->only(['store', 'update', 'destroy']);
+    Route::get('/user-authorized', [UserController::class, 'autoCompleteInputField']);
 
     // Not yet implemented
     Route::resource('product', ProductController::class)->except(['show']);
@@ -82,11 +83,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 
 });
-
 //Route::resource('order', OrderController::class)->only(['store']);
-Route::resource('payment-method', PaymentMethodController::class)->only(['index']);
 Route::resource('order', OrderController::class);
 
-//Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
+Route::resource('payment-method', PaymentMethodController::class)->only(['index']);
 
+//Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Order\StoreOrderRequest;
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PaymentDetails;
@@ -37,6 +38,10 @@ class OrderController extends Controller
         $orderAttributes = $request->except('cart');
         $orderAttributes['status_id'] = Status::pluck('id')->first();
 
+        if (auth('sanctum')->user()) {
+            $user_uuid = auth('sanctum')->user()->uuid;
+            $orderAttributes['user_uuid'] = $user_uuid;
+        }
 
         $createdOrder = Order::create($orderAttributes);
         $createdOrderUuid = $createdOrder->uuid;
@@ -55,6 +60,11 @@ class OrderController extends Controller
             foreach ($request->get('cart') as $item) {
                 $item['order_uuid'] = $createdOrderUuid;
                 OrderItem::create($item);
+            }
+
+            if (auth('sanctum')->user()) {
+                $user_uuid = auth('sanctum')->user()->uuid;
+                CartItem::where('user_uuid', $user_uuid)->delete();
             }
         }
         return response(['message' => 'Tạo đơn hàng mới và thêm chi tiết đơn hàng thành công'], 200);
