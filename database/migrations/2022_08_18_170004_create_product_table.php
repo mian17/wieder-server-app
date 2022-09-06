@@ -24,7 +24,7 @@ class CreateProductTable extends Migration
             $table->text('summary');
             $table->text('desc');
             $table->text('detail_info');
-            $table->string('quantity');
+//            $table->string('quantity');
             $table->string('SKU')->unique('SKU');
             $table->integer('mass');
             $table->integer('cost_price');

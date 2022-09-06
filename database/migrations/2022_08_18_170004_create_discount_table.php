@@ -19,6 +19,7 @@ class CreateDiscountTable extends Migration
             $table->text('desc');
             $table->integer('total_money_condition');
             $table->decimal('discount_percent', 10, 0);
+            $table->timestamp('expiration_date');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
         });

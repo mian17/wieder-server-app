@@ -38,6 +38,8 @@ class StoreOrderRequest extends FormRequest
 //            'status_id' => 'required|integer|numeric',
             'payment_method_id' => 'required|integer|numeric',
             'cart' => 'required|array|min:1',
+            'discount_code' => 'nullable|string|min:1',
+            'discount_percent' => 'nullable|numeric|integer',
         ];
     }
 

@@ -19,6 +19,7 @@ class KindSeeder extends Seeder
             'name' => 'Dưa hấu',
             'image_1' => '/img/product/dua-hau-1.jpg',
             'image_2' => '/img/product/dua-hau-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
             'hex_color' => '#fa5252',
             'product_id' => 1
         ]);
@@ -26,6 +27,8 @@ class KindSeeder extends Seeder
             'name' => 'Dâu tây',
             'image_1' => '/img/product/dau-tay-1.jpg',
             'image_2' => '/img/product/dau-tay-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#fa5252',
             'product_id' => 2
         ]);
@@ -33,6 +36,8 @@ class KindSeeder extends Seeder
             'name' => 'Măng cụt',
             'image_1' => '/img/product/mang-cut-1.jpg',
             'image_2' => '/img/product/mang-cut-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ced4da',
             'product_id' => 3
         ]);
@@ -40,6 +45,8 @@ class KindSeeder extends Seeder
             'name' => 'Chanh nhập khẩu',
             'image_1' => '/img/product/chanh-1.jpg',
             'image_2' => '/img/product/chanh-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ffd43b',
             'product_id' => 4
         ]);
@@ -47,6 +54,8 @@ class KindSeeder extends Seeder
             'name' => 'Thanh long',
             'image_1' => '/img/product/thanh-long-1.jpg',
             'image_2' => '/img/product/thanh-long-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ff6b6b',
             'product_id' => 5
         ]);
@@ -54,6 +63,8 @@ class KindSeeder extends Seeder
             'name' => 'Táo đỏ',
             'image_1' => '/img/product/tao-do-1.jpg',
             'image_2' => '/img/product/tao-do-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ff8787',
             'product_id' => 6
         ]);
@@ -61,6 +72,8 @@ class KindSeeder extends Seeder
             'name' => 'Táo xanh',
             'image_1' => '/img/product/tao-xanh-1.jpg',
             'image_2' => '/img/product/tao-xanh-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#51cf66',
             'product_id' => 6
         ]);
@@ -68,6 +81,8 @@ class KindSeeder extends Seeder
             'name' => 'Thịt bò',
             'image_1' => '/img/product/thit-bo-1.jpg',
             'image_2' => '/img/product/thit-bo-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ff8787',
             'product_id' => 7
         ]);
@@ -75,6 +90,8 @@ class KindSeeder extends Seeder
             'name' => 'Trứng gà',
             'image_1' => '/img/product/trung-ga-1.jpg',
             'image_2' => '/img/product/trung-ga-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ff6b6b',
             'product_id' => 8
         ]);
@@ -83,6 +100,8 @@ class KindSeeder extends Seeder
             'name' => 'Cá hồi',
             'image_1' => '/img/product/ca-hoi-1.jpg',
             'image_2' => '/img/product/ca-hoi-1.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ffa94d',
             'product_id' => 9
         ]);
@@ -90,6 +109,8 @@ class KindSeeder extends Seeder
             'name' => 'Gạo 5kg',
             'image_1' => '/img/product/gao-1.jpg',
             'image_2' => '/img/product/gao-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ced4da',
             'product_id' => 10
         ]);
@@ -97,6 +118,8 @@ class KindSeeder extends Seeder
             'name' => 'Dưa leo',
             'image_1' => '/img/product/dua-leo-1.jpg',
             'image_2' => '/img/product/dua-leo-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#82c91e',
             'product_id' => 11
         ]);
@@ -104,6 +127,8 @@ class KindSeeder extends Seeder
             'name' => 'Mì ý cọng dài',
             'image_1' => '/img/product/mi-y-cong-dai-1.jpg',
             'image_2' => '/img/product/mi-y-cong-dai-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#ffe066',
             'product_id' => 12
         ]);
@@ -111,6 +136,8 @@ class KindSeeder extends Seeder
             'name' => 'Mì ý cọng ngắn',
             'image_1' => '/img/product/mi-y-cong-ngan-1.jpg',
             'image_2' => '/img/product/mi-y-cong-ngan-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#f08c00',
             'product_id' => 12
         ]);
@@ -119,6 +146,8 @@ class KindSeeder extends Seeder
             'name' => 'Trà matcha đóng chai',
             'image_1' => '/img/product/tra-matcha-dang-nuoc-1.jpg',
             'image_2' => '/img/product/tra-matcha-dang-nuoc-1.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#82c91e',
             'product_id' => 13
         ]);
@@ -126,6 +155,8 @@ class KindSeeder extends Seeder
             'name' => 'Cà phê dạng hạt Arabica',
             'image_1' => '/img/product/ca-phe-dang-hat-arabica-1.jpg',
             'image_2' => '/img/product/ca-phe-dang-hat-arabica-2.jpg',
+            'quantity' => fake()->numberBetween(1, 5000),
+
             'hex_color' => '#e67700',
             'product_id' => 14
         ]);

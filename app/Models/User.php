@@ -161,6 +161,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Order::class);
     }
 
+    /**
+     * A user can apply many discounts code
+     * but restrict to only one time
+     *
+     *  @return BelongsToMany
+     */
+    public function discounts(): BelongsToMany
+    {
+        return $this->belongsToMany(Discount::class, 'discount_user');
+    }
 
 
 }

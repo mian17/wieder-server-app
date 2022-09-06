@@ -28,15 +28,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-
-
 // Public category controller routes
 Route::resource('category', CategoryController::class)->only(['index', 'show']);
 Route::get('parent-categories', [CategoryController::class, 'indexParentCategories']);
 Route::get('/categories/products', [CategoryController::class, 'indexWithProducts']); // for the 'all' category
 Route::get('/category/{category_id}/product', [CategoryController::class, 'showWithProducts']); // for a specific category
 
+// Show product details in client
 Route::resource('product', ProductController::class)->only(['show']);
+
+// Payment methods
+Route::resource('payment-method', PaymentMethodController::class)->only(['index']);
+
+// Allow unregistered users to submit an order
+Route::resource('order', OrderController::class)->only(['store']);
+
+// Check discount code, if applicable
+Route::post('/discount-code-check', [DiscountController::class, 'checkDiscountCode']);
+
 ////////////////////////////////////////////////////////////////////////
 // Send email to newly registered User
 Route::get('/email/verify', function () {
@@ -83,10 +92,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 
 });
-//Route::resource('order', OrderController::class)->only(['store']);
-Route::resource('order', OrderController::class);
 
-Route::resource('payment-method', PaymentMethodController::class)->only(['index']);
+//
+
 
 //Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
 
