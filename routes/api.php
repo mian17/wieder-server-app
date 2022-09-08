@@ -34,6 +34,11 @@ Route::get('parent-categories', [CategoryController::class, 'indexParentCategori
 Route::get('/categories/products', [CategoryController::class, 'indexWithProducts']); // for the 'all' category
 Route::get('/category/{category_id}/product', [CategoryController::class, 'showWithProducts']); // for a specific category
 
+// Front page products
+Route::get('/product/show-front-page/{id}', [ProductController::class, 'showProductFrontPage']);
+Route::get('/product/show-products-front-page', [ProductController::class, 'indexProductsFrontPage']);
+
+
 // Show product details in client
 Route::resource('product', ProductController::class)->only(['show']);
 
@@ -93,8 +98,4 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 });
 
-//
-
-
-//Route::get('/user/{uuid}/cart', [UserController::class, 'getCartItemsFromAUser']);
 

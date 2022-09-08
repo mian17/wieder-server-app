@@ -23,6 +23,20 @@ class ProductController extends Controller
         return response()->json(['products' => Product::paginate(50)]);
     }
 
+    /**
+     * Display a listing for front page
+     *
+     * @return Response
+     */
+    public function indexProductsFrontPage(): Response
+    {
+        $products = Product::with('kinds')->limit(11)->get();
+        return response([
+            'message' => 'Lấy các sản phẩm cho trang chủ thành công',
+            'products' => $products
+        ], 200);
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -82,6 +96,23 @@ class ProductController extends Controller
     }
 
     /**
+     * Show product for front page
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function showProductFrontPage(int $id): Response
+    {
+        $desiredProduct = Product::with(['kinds'])
+            ->where('id', $id)
+            ->get();
+        return response([
+            'message' => "Hiển thị sản phẩm thành công",
+            "product" => $desiredProduct
+        ], 200);
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param EditProductRequest $request
@@ -90,10 +121,10 @@ class ProductController extends Controller
      */
     public function update(EditProductRequest $request, int $id): Response
     {
-         $attributes = $request->all();
+        $attributes = $request->all();
 //         echo '<pre>', print_r($request->all()), '</pre>';
-         $desiredProduct = Product::findOrFail($id);
-         $desiredProduct->update($attributes);
+        $desiredProduct = Product::findOrFail($id);
+        $desiredProduct->update($attributes);
 
         return response([
             'message' => "Cập nhật sản phẩm thành công",
@@ -104,7 +135,7 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
      */
     public function destroy($id)
