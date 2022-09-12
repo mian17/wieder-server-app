@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
 //use Illuminate\Support\Facades\Request;
 
 class UserController extends Controller
@@ -103,24 +104,59 @@ class UserController extends Controller
         }
 
 
-
         return response([
             'message' => 'Đã nhận được yêu cầu update và chỉnh sửa thông tin user này thành công',
             'user' => $editingUser
         ]);
     }
 
-
     /**
-     * Remove the specified resource from storage.
+     * Update user's avatar
      *
-     * @param int $id
+     * @param Request $request
      * @return Response
      */
-    public function destroy(int $id)
+    public function updateAvatar(Request $request): Response
     {
-        //
+        $request->validate([
+            'avatar_file' => 'required|image|mimes:png,jpg,jpeg|max:1024'
+        ]);
+
+        $attributes = [];
+
+        if ($request->hasFile('avatar_file')) {
+            $uploadedFile = $request->file('avatar_file');
+            $name = $uploadedFile->getClientOriginalName();
+
+            $imageName = microtime() . '-' . $name;
+
+            $movedFile = $uploadedFile->storeAs('img/avatar', $imageName, ['disk' => 'image']);
+            $attributes['avatar_url'] = '/' . $movedFile;
+        }
+
+        $userUuid = auth()->user()->uuid;
+        $editingUser = User::findOrFail($userUuid);
+        $editingUser->update(['avatar' => $attributes['avatar_url']]);
+
+        return response(['message' => "Đổi hình ảnh người dùng thành công"]);
     }
+
+    public function changePassword(Request $request): Response
+    {
+
+    }
+
+
+//    /**
+//     * Remove the specified resource from storage.
+//     *
+//     * @param int $id
+//     * @return Response
+//     */
+//    public function destroy(int $id)
+//    {
+//        //
+//    }
 
     /**
      * Get items in a user's cart
@@ -147,10 +183,6 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['error' => 'Bạn chưa đăng nhập']);
         }
-
         return response()->json($user);
-
-
     }
-
 }
