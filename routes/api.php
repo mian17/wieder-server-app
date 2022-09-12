@@ -79,6 +79,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Implemented route in client
     Route::resource('category', CategoryController::class)->only(['store', 'update', 'destroy']);
     Route::get('/user-authorized', [UserController::class, 'autoCompleteInputField']);
+    Route::patch('/user-update-info', [UserController::class, 'updateLoggedInUserInfo']);
 
     // Not yet implemented
     Route::resource('product', ProductController::class)->except(['show']);

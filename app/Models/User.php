@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Ramsey\Uuid\Uuid;
 
 
 /**
@@ -60,6 +61,20 @@ class User extends Authenticatable implements MustVerifyEmail
 {
 
     use HasApiTokens, HasFactory, Notifiable;
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            $model->uuid = Uuid::uuid4();
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+
     protected $primaryKey='uuid';
 
     /**
@@ -100,6 +115,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'password',
         'avatar',
+        'email_verified_at'
     ];
 
     /**

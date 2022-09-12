@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\EditUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
+//use Illuminate\Support\Facades\Request;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * not implemented in client
      *
      * @return JsonResponse
      */
@@ -33,7 +39,12 @@ class UserController extends Controller
         return response()->json(User::findOrFail($id));
     }
 
-    public function showLoggedInUserInfo()
+    /**
+     * Show logged-in user info without specifying a uuid for route
+     *
+     * @return Response
+     */
+    public function showLoggedInUserInfo(): Response
     {
         $user = auth()->user();
 
@@ -63,6 +74,42 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Đã nhận được yêu cầu update và chỉnh sửa thông tin user này thành công']);
     }
+
+    /**
+     * Update user info without specifying user's uuid
+     *
+     * @param EditUserRequest $request
+     * @return Response
+     */
+    public function updateLoggedInUserInfo(EditUserRequest $request): Response
+    {
+
+        $attributes = $request->except('role_id');
+
+        $userUuid = auth()->user()->uuid;
+
+        $editingUser = User::findOrFail($userUuid);
+
+
+        if ($attributes['email'] === $editingUser->email) {
+            echo 'test';
+            $editingUser->update($attributes);
+        } else {
+            if ($editingUser->hasVerifiedEmail()) {
+                $editingUser->update($attributes);
+                $editingUser->update(['email_verified_at' => NULL]);
+                $editingUser->sendEmailVerificationNotification();
+            }
+        }
+
+
+
+        return response([
+            'message' => 'Đã nhận được yêu cầu update và chỉnh sửa thông tin user này thành công',
+            'user' => $editingUser
+        ]);
+    }
+
 
     /**
      * Remove the specified resource from storage.

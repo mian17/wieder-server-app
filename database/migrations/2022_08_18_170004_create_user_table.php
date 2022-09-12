@@ -15,7 +15,8 @@ class CreateUserTable extends Migration
     public function up()
     {
         Schema::create('user', function (Blueprint $table) {
-            $table->char('uuid', 36)->default(DB::raw('(UUID())'))->primary();
+//            $table->char('uuid', 36)->default(DB::raw('(UUID())'))->primary();
+            $table->uuid()->primary();
             $table->string('username');
             $table->string('password');
             $table->string('email')->unique();
@@ -25,7 +26,7 @@ class CreateUserTable extends Migration
             $table->tinyInteger('gender');
             $table->string('address');
             $table->integer('reward_points')->default(0);
-            $table->string('avatar')->default('\\\'/img/avatar/default-avatar.png\\\'');
+            $table->string('avatar')->default('/img/avatar/default-avatar.png');
             $table->timestamp('last_sign_in')->useCurrentOnUpdate()->useCurrent();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
