@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\ChangeUserPasswordRequest;
 use App\Http\Requests\User\EditUserRequest;
+use App\Http\Requests\User\StoreAvatarImageRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -12,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 //use Illuminate\Support\Facades\Request;
 
@@ -113,14 +116,11 @@ class UserController extends Controller
     /**
      * Update user's avatar
      *
-     * @param Request $request
+     * @param StoreAvatarImageRequest $request
      * @return Response
      */
-    public function updateAvatar(Request $request): Response
+    public function updateAvatar(StoreAvatarImageRequest $request): Response
     {
-        $request->validate([
-            'avatar_file' => 'required|image|mimes:png,jpg,jpeg|max:1024'
-        ]);
 
         $attributes = [];
 
@@ -141,9 +141,31 @@ class UserController extends Controller
         return response(['message' => "Đổi hình ảnh người dùng thành công"]);
     }
 
-    public function changePassword(Request $request): Response
+    public function changePassword(ChangeUserPasswordRequest $request): Response
     {
+        $oldPassword = $request->get('old_password');
+        $loggedInUserUuid = auth()->user()->uuid;
+        $loggedInUser = User::find($loggedInUserUuid);
 
+        if (Hash::check($oldPassword, $loggedInUser->password)) {
+
+            $newPassword = $request->get('password');
+            $newPasswordConfirmation = $request->get('password_confirmation');
+
+            if ($newPassword === $newPasswordConfirmation) {
+                if ($oldPassword === $newPassword) {
+                    return response(['message' => 'Hãy đảm bảo rằng mật khẩu cũ và mật khẩu mới của bạn không giống nhau'], 422);
+                }
+
+
+                $loggedInUser->update(['password' => $newPassword]);
+                return response(['message' => 'Đổi mật khẩu thành công']);
+            }
+
+            return response(['message' => 'Mật khẩu mới không giống nhau'], 422);
+        }
+
+        return response(['message' => 'Mật khẩu cũ sai, bạn vui lòng kiểm tra lại nhé.'], 401);
     }
 
 

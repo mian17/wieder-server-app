@@ -81,6 +81,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/user-authorized', [UserController::class, 'autoCompleteInputField']);
     Route::patch('/user-update-info', [UserController::class, 'updateLoggedInUserInfo']);
     Route::post('/user-update-avatar', [UserController::class, 'updateAvatar']);
+    Route::patch('/user-change-password', [UserController::class, 'changePassword']);
 
     // Not yet implemented
     Route::resource('product', ProductController::class)->except(['show']);
