@@ -15,7 +15,10 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     /**
@@ -25,7 +28,74 @@ class OrderController extends Controller
      */
     public function index(): JsonResponse
     {
-        return response()->json('orders', Order::paginate(50));
+        $userUuid = auth()->user()->uuid;
+
+
+        $orders = DB::table('order')
+            ->where('user_uuid', $userUuid)
+            ->join('order_item', 'order.uuid', '=', 'order_item.order_uuid')
+            ->join('product', 'product.id', '=', 'order_item.product_id',)
+            ->join('model', 'model.id', '=', 'order_item.model_id')
+            ->select(
+                'order.uuid', 'order.total', 'order.status_id', 'order.created_at',
+                'product.name AS product_name',
+                'model.name AS model_name', 'model.image_1 AS model_image_url',
+                'order_item.price', 'order_item.quantity',
+            )
+            ->orderBy('order.created_at')
+            ->get()
+            ->groupBy('uuid');
+
+        return response()->json($orders);
+    }
+
+    /**
+     * Display orders for a specific registered user
+     *
+     * @param $currentPage
+     * @return JsonResponse
+     */
+    public function indexForLoggedInUser($currentPage): JsonResponse
+    {
+        $userUuid = auth()->user()->uuid;
+
+
+        $orders = DB::table('order')
+            ->where('user_uuid', $userUuid)
+            ->join('order_item', 'order.uuid', '=', 'order_item.order_uuid')
+            ->join('product', 'product.id', '=', 'order_item.product_id',)
+            ->join('model', 'model.id', '=', 'order_item.model_id')
+            ->select(
+                'order.uuid', 'order.total', 'order.status_id', 'order.created_at',
+                'product.name AS product_name',
+                'model.name AS model_name', 'model.image_1 AS model_image_url',
+                'order_item.price', 'order_item.quantity',
+            )
+            ->orderBy('order.created_at')
+            ->get()
+            ->groupBy('uuid')->toArray();
+
+
+        $total = count($orders);
+        $perPage = 5;
+
+        $currentItems = array_slice($orders, $perPage * ($currentPage - 1), $perPage);
+
+        $paginator = new LengthAwarePaginator($currentItems, $total, $perPage, $currentPage, ['path' => '']);
+
+        return response()->json($paginator);
+    }
+
+    public function paginate($items, $perPage = 15, $page = null, $options = ['path' => ""]): LengthAwarePaginator
+    {
+        if (Paginator::resolveCurrentPage()) {
+            $page = $page ?: (Paginator::resolveCurrentPage());
+        } else {
+            $page = $page ?: (1);
+        }
+
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
     }
 
 
@@ -39,11 +109,12 @@ class OrderController extends Controller
     {
         // Payment Details status 1: Chưa thanh toán
         // Payment Details status 2: Đã thanh tón
+        DB::transaction(function () use ($request) {
 
-        if (!$request->filled(['discount_code', 'discount_percent'])) {
+            if (!$request->filled(['discount_code', 'discount_percent'])) {
+                return $this->createOrder($request);
+            }
 
-            return $this->createOrder($request);
-        } else  {
             $orderAttributes = $request->except('cart');
             $orderAttributes['status_id'] = Status::pluck('id')->first();
 
@@ -56,7 +127,6 @@ class OrderController extends Controller
                 $discountPercentIsEqual = $clientDesiredDiscountCode->discount_percent === $request->get('discount_percent');
 
 
-
                 // Case when user used a discount, it is invalid but still wants to check out
                 if ($discountPercentIsEqual === false) {
                     return $this->createOrder($request);
@@ -64,11 +134,6 @@ class OrderController extends Controller
 
                 $user = User::where('uuid', $user_uuid)->first();
                 $user->discounts()->attach($clientDesiredDiscountCode);
-
-//                if ($user->discounts->contains($clientDesiredDiscountCode)) {
-//                    return response(['message' => 'Bạn đã sử dụng mã giảm giá này'], 410);
-//                }
-
 
                 $orderAttributes['total'] = $orderAttributes['total']
                     - $clientDesiredDiscountCode->value('discount_percent') * 0.01 * $orderAttributes['total'];
@@ -103,9 +168,10 @@ class OrderController extends Controller
                 return response(['message' => 'Tạo đơn hàng mới và thêm chi tiết đơn hàng thành công'], 200);
             }
 
+            return response(['message' => "Tạo đơn hàng thành công", 200]);
+        });
 
-        }
-
+        return response(['message' => 'Transaction finished without any errors'], 200);
 
     }
 

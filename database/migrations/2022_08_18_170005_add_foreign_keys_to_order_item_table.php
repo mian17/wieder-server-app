@@ -30,7 +30,7 @@ class AddForeignKeysToOrderItemTable extends Migration
         Schema::table('order_item', function (Blueprint $table) {
             $table->dropForeign('order_item_ibfk_1');
             $table->dropForeign('order_item_ibfk_2');
-            $table->dropForeign('order_item_ibfk_2');
+            $table->dropForeign('order_item_ibfk_3');
         });
     }
 }

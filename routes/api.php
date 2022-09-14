@@ -76,13 +76,23 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // TODO: Upload KindImage without storing a new category is not working atm
     // TODO: Extract public routes for client website
 
+    ///////////////////////////////////////////////////
     // Implemented route in client
+
+    // Category
     Route::resource('category', CategoryController::class)->only(['store', 'update', 'destroy']);
+
+    // User
     Route::get('/user-authorized', [UserController::class, 'autoCompleteInputField']);
     Route::patch('/user-update-info', [UserController::class, 'updateLoggedInUserInfo']);
     Route::post('/user-update-avatar', [UserController::class, 'updateAvatar']);
     Route::patch('/user-change-password', [UserController::class, 'changePassword']);
 
+    // Orders
+    Route::resource('order', OrderController::class)->except(['store']);
+    Route::get('/order/pagination/{currentPage}', [OrderController::class, 'indexForLoggedInUser']);
+
+    ////////////////////////////////////////////////////
     // Not yet implemented
     Route::resource('product', ProductController::class)->except(['show']);
     Route::resource('kind', KindController::class);

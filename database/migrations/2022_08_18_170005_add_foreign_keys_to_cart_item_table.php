@@ -30,7 +30,7 @@ class AddForeignKeysToCartItemTable extends Migration
         Schema::table('cart_item', function (Blueprint $table) {
             $table->dropForeign('cart_item_ibfk_1');
             $table->dropForeign('cart_item_ibfk_2');
-            $table->dropForeign('cart_item_ibfk_2');
+            $table->dropForeign('cart_item_ibfk_3');
         });
     }
 }

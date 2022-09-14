@@ -24,8 +24,6 @@ class Order extends Model
         return 'uuid';
     }
 
-    // TODO: SETUP FOR SHORT UUID
-
     protected $primaryKey='uuid';
 
     /**
@@ -89,13 +87,13 @@ class Order extends Model
     }
 
     /**
-     * The order table can have many order statuses
+     * One instance of the table can have many order items
      *
      * @return HasMany
      */
     public function orderItems(): HasMany
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'order_uuid', 'uuid');
     }
 
 }
