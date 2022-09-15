@@ -91,6 +91,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Orders
     Route::resource('order', OrderController::class)->except(['store']);
     Route::get('/order/pagination/{currentPage}', [OrderController::class, 'indexForLoggedInUser']);
+    Route::get('/order/{orderStatusId}/pagination/{currentPage}', [OrderController::class, 'indexForLoggedInUserBasedToOrderStatus']);
 
     ////////////////////////////////////////////////////
     // Not yet implemented

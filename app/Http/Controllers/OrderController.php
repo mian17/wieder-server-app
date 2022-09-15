@@ -19,6 +19,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+
 class OrderController extends Controller
 {
     /**
@@ -29,7 +30,6 @@ class OrderController extends Controller
     public function index(): JsonResponse
     {
         $userUuid = auth()->user()->uuid;
-
 
         $orders = DB::table('order')
             ->where('user_uuid', $userUuid)
@@ -86,16 +86,42 @@ class OrderController extends Controller
         return response()->json($paginator);
     }
 
-    public function paginate($items, $perPage = 15, $page = null, $options = ['path' => ""]): LengthAwarePaginator
+    /**
+     * Display orders for a specific registered user
+     *
+     * @param int $orderStatusId
+     * @param int $currentPage
+     * @return JsonResponse
+     */
+    public function indexForLoggedInUserBasedToOrderStatus(int $orderStatusId, int $currentPage): JsonResponse
     {
-        if (Paginator::resolveCurrentPage()) {
-            $page = $page ?: (Paginator::resolveCurrentPage());
-        } else {
-            $page = $page ?: (1);
-        }
+        $userUuid = auth()->user()->uuid;
 
-        $items = $items instanceof Collection ? $items : Collection::make($items);
-        return new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
+        $orders = DB::table('order')
+            ->where('user_uuid', $userUuid)
+            ->where('status_id', $orderStatusId)
+            ->join('order_item', 'order.uuid', '=', 'order_item.order_uuid')
+            ->join('product', 'product.id', '=', 'order_item.product_id',)
+            ->join('model', 'model.id', '=', 'order_item.model_id')
+            ->select(
+                'order.uuid', 'order.total', 'order.status_id', 'order.created_at',
+                'product.name AS product_name',
+                'model.name AS model_name', 'model.image_1 AS model_image_url',
+                'order_item.price', 'order_item.quantity',
+            )
+            ->orderBy('order.created_at', 'DESC')
+            ->get()
+            ->groupBy('uuid')->toArray();
+
+
+        $total = count($orders);
+        $perPage = 5;
+
+        $currentItems = array_slice($orders, $perPage * ($currentPage - 1), $perPage);
+
+        $paginator = new LengthAwarePaginator($currentItems, $total, $perPage, $currentPage, ['path' => '']);
+
+        return response()->json($paginator);
     }
 
 
@@ -201,12 +227,75 @@ class OrderController extends Controller
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param int $id
+     * @param string $id
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        //
+        $request->validate(['order_status' => 'required|integer|numeric|min:1']);
+        $userUuid = auth()->user()->uuid;
+        $editingOrder = Order::find($id);
+        if (auth()->user()) {
+            switch ($request->get('order_status')) {
+                case 4:
+                    $conditionToChangeToOrderReceivedStatus =
+                        $editingOrder->status_id === 1
+                        || $editingOrder->status_id === 2
+                        || $editingOrder->status_id === 3
+                        || $editingOrder->status_id === 6;
+
+                    if ($conditionToChangeToOrderReceivedStatus) {
+                        $editingOrder->update(['status_id' => 4]);
+
+                    } else {
+                        return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                    }
+                    break;
+                case 5:
+                    echo "Sẽ sửa đổi đơn hàng sang trạng thái hủy";
+                    $conditionToChangeToOrderCanceled =
+                        $editingOrder->status_id === 1
+                        || $editingOrder->status_id === 2
+                        || $editingOrder->status_id === 3;
+
+                    if ($conditionToChangeToOrderCanceled) {
+                        $editingOrder->update(['status_id' => 5]);
+                        $orderItems = DB::table('order_item')->where('order_uuid', $id)->get(['model_id', 'quantity']);
+                        foreach($orderItems as $orderItem) {
+                            DB::table('model')
+                                ->where('id', $orderItem->model_id)
+                                ->increment('quantity', $orderItem->quantity);
+
+                        }
+//                        return response()->json($orderItems);
+
+                    } else {
+                        return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                    }
+                    break;
+                case 6:
+                    echo "Sẽ sửa đổi đơn hàng sang trạng thái đổi trả/hoàn tiền";
+                    $conditionToChangeToOrderReturnOrRefund = $editingOrder->status_id === 4;
+                    if ($conditionToChangeToOrderReturnOrRefund) {
+                        $editingOrder->update(['status_id' => 6]);
+                    } else {
+                        return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                    }
+                    break;
+                default:
+                    return response([
+                        'message' => 'Yêu cầu sửa đổi đơn hàng không hợp lệ',
+                        'order' => $editingOrder
+                    ], 422);
+            }
+
+            return response([
+                'message' => 'Đã sửa đổi trạng thái đơn hàng thành công',
+                'order' => $editingOrder
+            ], 200);
+        }
+
+        return response(['message' => 'Bạn không có quyền'], 401);
     }
 
     /**
@@ -261,5 +350,26 @@ class OrderController extends Controller
             }
         }
         return response(['message' => 'Tạo đơn hàng mới và thêm chi tiết đơn hàng thành công'], 200);
+    }
+
+    /**
+     * Helper function for paginate
+     *
+     * @param $items
+     * @param $perPage
+     * @param $page
+     * @param $options
+     * @return LengthAwarePaginator
+     */
+    public function paginate($items, $perPage = 15, $page = null, $options = ['path' => ""]): LengthAwarePaginator
+    {
+        if (Paginator::resolveCurrentPage()) {
+            $page = $page ?: (Paginator::resolveCurrentPage());
+        } else {
+            $page = $page ?: (1);
+        }
+
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
     }
 }

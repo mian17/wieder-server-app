@@ -20,5 +20,6 @@ class StatusSeeder extends Seeder
         Status::create(['name' => "Đang giao"]);
         Status::create(['name' => "Đã giao"]);
         Status::create(['name' => "Đã hủy"]);
+        Status::create(['name' => "Yêu cầu đổi trả, hoàn tiền"]);
     }
 }
