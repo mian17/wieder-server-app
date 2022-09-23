@@ -8,6 +8,7 @@ use App\Models\Merchant;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\UserRole;
+use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -53,17 +54,17 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory(10)->create();
-//        Product::factory(2000)->create();
+//        Product::factory(2000)->create(); // TODO: COMMENT THIS AFTER TESTING PRODUCT PAGINATION
 
         $this->call([
-            CartItemSeeder::class,
+            CartItemSeeder::class, // TODO: UNCOMMENT THIS AFTER TESTING PRODUCT PAGINATION
         ]);
 
         $admin = User::where('username', 'admin')->first();
 
-        $adminRole = UserRole::where('role_name', 'Admin')->first();
-        $moderatorRole = UserRole::where('role_name', 'Quản trị viên')->first();
-        $customerRole = UserRole::where('role_name', 'Khách hàng')->first();
+        $adminRole = UserRole::where('role_name', 'admin')->first();
+        $moderatorRole = UserRole::where('role_name', 'moderator')->first();
+        $customerRole = UserRole::where('role_name', 'customer')->first();
 
         $roles = [$adminRole, $moderatorRole, $customerRole];
 
@@ -73,13 +74,16 @@ class DatabaseSeeder extends Seeder
 
         foreach(User::all() as $user) {
             if ($user->username === 'admin') continue;
-            $user->roles()->attach($roles[rand(0, 2)]);
+            $user->roles()->attach($roles[rand(0, count($roles) - 1)]);
         }
 
         $allMerchants = Merchant::all();
+        $allWareHouses = Warehouse::all();
         foreach(Product::all() as $product) {
-            $product->merchants()->attach($allMerchants[rand(1, 5)]);
+            $product->merchants()->attach($allMerchants[rand(0, count($allMerchants) - 1)]);
+            $product->warehouses()->attach($allWareHouses[rand(0, count($allWareHouses) - 1)]);
         }
+
 
 
 

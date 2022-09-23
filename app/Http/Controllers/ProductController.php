@@ -15,10 +15,10 @@ class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
+     * TODO: SEARCH FUNCTIONALITY
      * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         return response()->json(['products' => Product::paginate(50)]);
     }

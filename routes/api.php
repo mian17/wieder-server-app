@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryAdminController;
+use App\Http\Controllers\Admin\DashboardAdminController;
+use App\Http\Controllers\Admin\ProductAdminController;
+use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\DiscountController;
@@ -12,8 +16,13 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Middleware\EnsureAdminRole;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
+
+use Illuminate\Http\Request;
 //use App\Http\Requests\EmailVerificationRequest;
 
 /*
@@ -64,12 +73,69 @@ Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'init']
 Route::post('/email/verification-notification', [VerifyEmailController::class, 'resend'])
     ->middleware(['throttle:6,1'])->name('verification.send');
 
+// Password reset
+Route::post('/forgot-password', function (Request $request) {
+    $request->validate(['email' => 'required|email']);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return $status === Password::RESET_LINK_SENT
+        ? back()->with(['status' => __($status)])
+        : back()->withErrors(['email' => __($status)]);
+})->middleware('guest')->name('password.email');
+
+Route::get('/reset-password/{token}', function ($token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->middleware('guest')->name('password.reset');
+
+Route::post('/forgot-password', function (Request $request) {
+    $request->validate(['email' => 'required|email']);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return $status === Password::RESET_LINK_SENT
+        ? back()->with(['status' => __($status)])
+        : back()->withErrors(['email' => __($status)]);
+})->middleware('guest')->name('password.email');
+
+Route::post('/reset-password', function (Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => $password
+            ])->setRememberToken(Str::random(60));
+
+            $user->save();
+
+            event(new PasswordReset($user));
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+        ? redirect()->route('login')->with('status', __($status))
+        : back()->withErrors(['email' => [__($status)]]);
+})->middleware('guest')->name('password.update');
+
+
 
 ////////////////////////////////////////////////////////////////////////
 // Protected Routes
-Route::group(['middleware' => ['auth:sanctum']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator,customer']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user/account/profile', [UserController::class, 'showLoggedInUserInfo']);
+
+    Route::get('/user-is-admin', [AuthController::class, 'checkAdmin']);
 
     Route::resource('user', UserController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
 
@@ -99,17 +165,31 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('kind', KindController::class);
 
     Route::resource('discount', DiscountController::class);
-    Route::resource('warehouse', WarehouseController::class);
-    //Route::put('/warehouse-update-product/{id}', [WarehouseController::class, 'addProductToWarehouse']);
 
-    Route::resource('merchant', MerchantController::class);
-    Route::get('/merchants/products', [MerchantController::class, 'indexWithProducts']);
-    Route::get('/merchant/{merchant_id}/product', [MerchantController::class, 'showWithProducts']);
+
 
     Route::resource('cart', CartItemController::class);
     Route::get('/user-cart', [CartItemController::class, 'getCartItemsFromAuthorizedUser']);
-
-
 });
+
+Route::prefix('admin')->group(function () {
+    Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator']], function() {
+//    Route::get('/admin', [DashboardAdminController::class, 'index']);
+
+        Route::resource('category', CategoryAdminController::class);
+
+        Route::resource('product', ProductAdminController::class); // TODO: CHANGE TO ADMIN
+        Route::resource('warehouse', WarehouseController::class); // TODO: CHANGE TO ADMIN
+        //Route::put('/warehouse-update-product/{id}', [WarehouseController::class, 'addProductToWarehouse']);
+
+        Route::resource('merchant', MerchantController::class);
+        Route::get('/merchants/products', [MerchantController::class, 'indexWithProducts']);
+        Route::get('/merchant/{merchant_id}/product', [MerchantController::class, 'showWithProducts']);
+
+
+//    Route::get('/admin/user-authorized', [UserAdminController::class, 'showLoggedInUserInfo']);
+    });
+});
+
 
 

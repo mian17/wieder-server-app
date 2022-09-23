@@ -1,7 +1,11 @@
 <?php
 
 
+use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Middleware\EnsureAdminRole;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 // Controllers
@@ -27,3 +31,8 @@ Route::get('/', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+
+
+Route::post('/admin/login', [UserAdminController::class, 'login'])
+    ->middleware(EnsureAdminRole::class);
+

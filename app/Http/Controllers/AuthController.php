@@ -7,6 +7,8 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -71,8 +73,7 @@ class AuthController extends Controller
             $user = User::whereEmail($attributes['email'])->first();
 
             // Check password
-            if (!$user || !Hash::check($attributes['password'], $user->password))
-            {
+            if (!$user || !Hash::check($attributes['password'], $user->password)) {
                 return response(['message' => 'Email hoặc mật khẩu sai'], 401);
             }
 
@@ -84,19 +85,48 @@ class AuthController extends Controller
                 }
             }
 
-            $token = auth()->user()->createToken('user-token')->plainTextToken;
-            $user = auth()->user();
+            // Assign token abilities according to user's role
+            $authenticatedUser = auth()->user();
 
+//            if ($authenticatedUser->isAdmin()) {
+////                echo 'Admin hoặc moderator nè';
+//                $token = auth()->user()->createToken('user-token')->plainTextToken;
+//
+//                $response = [
+//                    'user' => $authenticatedUser,
+//                    'token' => $token,
+//                ];
+//
+//                return response($response, 201);
+//            } else {
+////                echo 'Khách hàng nè';
+//                $token = auth()->user()->createToken('user-token', [
+//                    'customer',
+//                ])->plainTextToken;
+//
+//                $response = [
+//                    'user' => $authenticatedUser,
+//                    'token' => $token,
+//                ];
+//
+//                return response($response, 201);
+//            }
+
+            $roles = $authenticatedUser->roles->pluck('role_name')->all();
+            $token = $authenticatedUser->createToken('user-token', $roles)->plainTextToken;
             $response = [
-                'user' => $user,
-                'token' => $token,
+                    'user' => $authenticatedUser,
+//                    'roles' => $roles,
+                    'token' => $token,
             ];
 
             return response($response, 201);
+
+
         } catch (QueryException $e) {
             echo "Không sao lưu được";
         }
-        return response(['message'=> 'Hoàn thành thao tác']);
+        return response(['message' => 'Hoàn thành thao tác']);
     }
 
     /**
@@ -111,5 +141,24 @@ class AuthController extends Controller
         return response(['message' => 'Bạn đã đăng xuất'], 200);
     }
 
+    /**
+     * Ensure admin in order for the client site to render a new menu item
+     * called "Trang Admin"
+     *
+     * @param Request $request
+     * @return Application|ResponseFactory|Response|void
+     */
+    public function checkAdmin(Request $request) {
+        $authenticatedUser = auth()->user();
+        if ($authenticatedUser->tokenCan('admin')) {
+            $hashIsAdmin = 'r6&fekimLPvK3eU897bG3q9oDqFHcCjWMGi8#Dp7D5q6u$nXXPttNMr7nF3szG^A*jLxS53Bhau$Edt!x25^Sjc$q$n6fd9m3Z4wJR7uiNAyKR2r4JPz2hMP59*zc!pP';
+
+            if (Hash::check($hashIsAdmin, $request->header('Hashed'))) {
+                return response('', 204);
+            }
+        } else {
+            return response('', 401);
+        }
+    }
 
 }

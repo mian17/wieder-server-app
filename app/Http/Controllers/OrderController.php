@@ -233,69 +233,71 @@ class OrderController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate(['order_status' => 'required|integer|numeric|min:1']);
-        $userUuid = auth()->user()->uuid;
-        $editingOrder = Order::find($id);
-        if (auth()->user()) {
-            switch ($request->get('order_status')) {
-                case 4:
-                    $conditionToChangeToOrderReceivedStatus =
-                        $editingOrder->status_id === 1
-                        || $editingOrder->status_id === 2
-                        || $editingOrder->status_id === 3
-                        || $editingOrder->status_id === 6;
+        DB::transaction(function () use ($request, $id) {
+            $editingOrder = Order::find($id);
+            if (auth()->user()) {
+                switch ($request->get('order_status')) {
+                    case 4:
+                        $conditionToChangeToOrderReceivedStatus =
+                            $editingOrder->status_id === 1
+                            || $editingOrder->status_id === 2
+                            || $editingOrder->status_id === 3
+                            || $editingOrder->status_id === 6;
 
-                    if ($conditionToChangeToOrderReceivedStatus) {
-                        $editingOrder->update(['status_id' => 4]);
+                        if ($conditionToChangeToOrderReceivedStatus) {
+                            $editingOrder->update(['status_id' => 4]);
 
-                    } else {
-                        return response(['message' => 'Yêu cầu không hợp lệ'], 422);
-                    }
-                    break;
-                case 5:
-                    echo "Sẽ sửa đổi đơn hàng sang trạng thái hủy";
-                    $conditionToChangeToOrderCanceled =
-                        $editingOrder->status_id === 1
-                        || $editingOrder->status_id === 2
-                        || $editingOrder->status_id === 3;
-
-                    if ($conditionToChangeToOrderCanceled) {
-                        $editingOrder->update(['status_id' => 5]);
-                        $orderItems = DB::table('order_item')->where('order_uuid', $id)->get(['model_id', 'quantity']);
-                        foreach($orderItems as $orderItem) {
-                            DB::table('model')
-                                ->where('id', $orderItem->model_id)
-                                ->increment('quantity', $orderItem->quantity);
-
+                        } else {
+                            return response(['message' => 'Yêu cầu không hợp lệ'], 422);
                         }
+                        break;
+                    case 5:
+                        echo "Sẽ sửa đổi đơn hàng sang trạng thái hủy";
+                        $conditionToChangeToOrderCanceled =
+                            $editingOrder->status_id === 1
+                            || $editingOrder->status_id === 2
+                            || $editingOrder->status_id === 3;
+
+                        if ($conditionToChangeToOrderCanceled) {
+                            $editingOrder->update(['status_id' => 5]);
+                            $orderItems = DB::table('order_item')->where('order_uuid', $id)->get(['model_id', 'quantity']);
+                            foreach ($orderItems as $orderItem) {
+                                DB::table('model')
+                                    ->where('id', $orderItem->model_id)
+                                    ->increment('quantity', $orderItem->quantity);
+
+                            }
 //                        return response()->json($orderItems);
 
-                    } else {
-                        return response(['message' => 'Yêu cầu không hợp lệ'], 422);
-                    }
-                    break;
-                case 6:
-                    echo "Sẽ sửa đổi đơn hàng sang trạng thái đổi trả/hoàn tiền";
-                    $conditionToChangeToOrderReturnOrRefund = $editingOrder->status_id === 4;
-                    if ($conditionToChangeToOrderReturnOrRefund) {
-                        $editingOrder->update(['status_id' => 6]);
-                    } else {
-                        return response(['message' => 'Yêu cầu không hợp lệ'], 422);
-                    }
-                    break;
-                default:
-                    return response([
-                        'message' => 'Yêu cầu sửa đổi đơn hàng không hợp lệ',
-                        'order' => $editingOrder
-                    ], 422);
+                        } else {
+                            return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                        }
+                        break;
+                    case 6:
+                        echo "Sẽ sửa đổi đơn hàng sang trạng thái đổi trả/hoàn tiền";
+                        $conditionToChangeToOrderReturnOrRefund = $editingOrder->status_id === 4;
+                        if ($conditionToChangeToOrderReturnOrRefund) {
+                            $editingOrder->update(['status_id' => 6]);
+                        } else {
+                            return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                        }
+                        break;
+                    default:
+                        return response([
+                            'message' => 'Yêu cầu sửa đổi đơn hàng không hợp lệ',
+                            'order' => $editingOrder
+                        ], 422);
+                }
+
+                return response([
+                    'message' => 'Đã sửa đổi trạng thái đơn hàng thành công',
+                    'order' => $editingOrder
+                ], 200);
             }
+            return response(['message' => 'Bạn không có quyền'], 401);
 
-            return response([
-                'message' => 'Đã sửa đổi trạng thái đơn hàng thành công',
-                'order' => $editingOrder
-            ], 200);
-        }
-
-        return response(['message' => 'Bạn không có quyền'], 401);
+        });
+        return response(['message' => 'Transaction finished']);
     }
 
     /**

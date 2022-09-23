@@ -15,8 +15,8 @@ class UserRoleSeeder extends Seeder
      */
     public function run()
     {
-        UserRole::create(['role_name' => 'Admin', 'upper_role_id' => null]);
-        UserRole::create(['role_name' => 'Quản trị viên', 'upper_role_id' => 1]);
-        UserRole::create(['role_name' => 'Khách hàng', 'upper_role_id' => 2]);
+        UserRole::create(['role_name' => 'admin', 'upper_role_id' => null]);
+        UserRole::create(['role_name' => 'moderator', 'upper_role_id' => 1]);
+        UserRole::create(['role_name' => 'customer', 'upper_role_id' => 2]);
     }
 }

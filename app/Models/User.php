@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -60,7 +61,8 @@ use Ramsey\Uuid\Uuid;
 class User extends Authenticatable implements MustVerifyEmail
 {
 
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
+
     public static function boot()
     {
         parent::boot();
@@ -75,7 +77,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-    protected $primaryKey='uuid';
+    protected $primaryKey = 'uuid';
 
     /**
      * Since ID type is uuid, to prevent Laravel from decrypting the id
@@ -150,7 +152,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * The roles that belong to the user.
      *
-     *  @return BelongsToMany
+     * @return BelongsToMany
      */
     public function roles(): BelongsToMany
     {
@@ -181,7 +183,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * A user can apply many discounts code
      * but restrict to only one time
      *
-     *  @return BelongsToMany
+     * @return BelongsToMany
      */
     public function discounts(): BelongsToMany
     {
@@ -189,4 +191,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
+    public function isAdmin()
+    {
+//        return $this->roles()
+//            ->where('role_name', 'Admin')
+//            ->orWhere('role_name', 'Quản trị viên')
+//            ->exists();
+
+        foreach ($this->roles()->get() as $role) {
+            if ($role->role_name === 'Admin' || $role->role_name === "Quản trị viên") {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
