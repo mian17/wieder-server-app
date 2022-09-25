@@ -34,6 +34,7 @@ class Kind extends Model
         'image_2',
         'hex_color',
         'product_id',
+        'quantity',
     ];
 
 

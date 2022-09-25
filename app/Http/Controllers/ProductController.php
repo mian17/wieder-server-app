@@ -38,27 +38,27 @@ class ProductController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param StoreProductRequest $request
-     * @return Response
-     */
-    public function store(StoreProductRequest $request): Response
-    {
-        try {
-            $attributes = $request->all();
-            $createdProduct = Product::create($attributes);
-
-            // Many-to-many relationship for products
-            $createdProduct->merchants()->attach($attributes['merchant_id']);
-            $createdProduct->warehouses()->attach($attributes['warehouse_id']);
-
-            return response(['message' => "Tạo sản phẩm mới thành công"], 200);
-        } catch (QueryException $e) {
-            return response(['message' => "Tạo sản phẩm mới không thành công", "error" => $e], 401);
-        }
-    }
+//    /**
+//     * Store a newly created resource in storage.
+//     *
+//     * @param StoreProductRequest $request
+//     * @return Response
+//     */
+//    public function store(StoreProductRequest $request): Response
+//    {
+//        try {
+//            $attributes = $request->all();
+//            $createdProduct = Product::create($attributes);
+//
+//            // Many-to-many relationship for products
+//            $createdProduct->merchants()->attach($attributes['merchant_id']);
+//            $createdProduct->warehouses()->attach($attributes['warehouse_id']);
+//
+//            return response(['message' => "Tạo sản phẩm mới thành công"], 200);
+//        } catch (QueryException $e) {
+//            return response(['message' => "Tạo sản phẩm mới không thành công", "error" => $e], 401);
+//        }
+//    }
 
     /**
      * Display the specified resource with its kinds.
