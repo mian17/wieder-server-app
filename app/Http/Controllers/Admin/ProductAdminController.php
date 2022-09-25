@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-
 class ProductAdminController extends Controller
 {
     /**
@@ -64,7 +63,6 @@ class ProductAdminController extends Controller
      */
     public function store(StoreProductRequest $request): Response
     {
-
         try {
             $attributes = $request->except('merchant_id', 'warehouse_id', 'models');
 
@@ -74,7 +72,11 @@ class ProductAdminController extends Controller
 
             $createdProduct = Product::create($attributes);
 
-            if ($request->has('merchant_ids') && $request->has('warehouse_ids') && $request->has('models')) {
+            $hasRelationalKeysForStoringProduct = $request->has('merchant_ids')
+                && $request->has('warehouse_ids')
+                && $request->has('models');
+
+            if ($hasRelationalKeysForStoringProduct) {
                 $decodedMerchantIds = json_decode($request->get('merchant_ids'), false, 512, JSON_THROW_ON_ERROR);
                 $decodedWarehouseIds = json_decode($request->get('warehouse_ids'), false, 512, JSON_THROW_ON_ERROR);
 
@@ -84,31 +86,19 @@ class ProductAdminController extends Controller
                 foreach($decodedMerchantIds as $merchantId) {
                     $createdProduct->merchants()->attach($merchantId);
                 }
+
                 foreach($decodedWarehouseIds as $warehouseId) {
                     $createdProduct->warehouses()->attach($warehouseId);
                 }
 
-                foreach ($models as $model) {
-                    echo '<pre>', print_r($model), '</pre>';
-                }
-
                 for ($i = 0, $iMax = count($models); $i < $iMax; $i++) {
                     foreach ($images[$i] as $key => $image) {
-                        $name = $image->getClientOriginalName();
-
-                        $imageName = microtime() . '-' . $name;
-
-                        $movedFile = $image->storeAs('img/product', $imageName, ['disk' => 'image']);
-                        $models[$i][$key] = '/' . $movedFile;
+                        $models[$i][$key] = uploadFile($image, 'img/product');
                     }
 
                     $models[$i]['product_id'] = $createdProduct->id;
-
-
                     Kind::create($models[$i]);
                 }
-
-
             }
 
 
