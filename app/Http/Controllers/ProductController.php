@@ -112,25 +112,25 @@ class ProductController extends Controller
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param EditProductRequest $request
-     * @param int $id
-     * @return Response
-     */
-    public function update(EditProductRequest $request, int $id): Response
-    {
-        $attributes = $request->all();
-//         echo '<pre>', print_r($request->all()), '</pre>';
-        $desiredProduct = Product::findOrFail($id);
-        $desiredProduct->update($attributes);
-
-        return response([
-            'message' => "Cập nhật sản phẩm thành công",
-            "product" => $desiredProduct
-        ], 200);
-    }
+//    /**
+//     * Update the specified resource in storage.
+//     *
+//     * @param EditProductRequest $request
+//     * @param int $id
+//     * @return Response
+//     */
+//    public function update(EditProductRequest $request, int $id): Response
+//    {
+//        $attributes = $request->all();
+////         echo '<pre>', print_r($request->all()), '</pre>';
+//        $desiredProduct = Product::findOrFail($id);
+//        $desiredProduct->update($attributes);
+//
+//        return response([
+//            'message' => "Cập nhật sản phẩm thành công",
+//            "product" => $desiredProduct
+//        ], 200);
+//    }
 
     /**
      * Remove the specified resource from storage.

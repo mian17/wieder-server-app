@@ -13,10 +13,8 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-//        if (auth()->user()->isAdmin()) {
-//            return true;
-//        }
-        return true;
+        $user = auth()->user();
+        return $user->tokenCan('admin') || $user->tokenCan('moderator');
     }
 
     /**
@@ -26,7 +24,7 @@ class StoreProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        \Log::debug($this->request->all());
+//        \Log::debug($this->request->all());
         return [
             'name' => 'required|string|min:4|max:255|unique:product,name',
             'brand' => 'required|string|min:4|max:255',

@@ -178,7 +178,13 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('category', CategoryAdminController::class);
 
-        Route::resource('product', ProductAdminController::class); // TODO: CHANGE TO ADMIN
+//        Route::resource('product', ProductAdminController::class); // TODO: CHANGE TO ADMIN
+        Route::get('product', [ProductAdminController::class, 'index']);
+        Route::post('product', [ProductAdminController::class, 'store']);
+        Route::get('product/{id}', [ProductAdminController::class, 'show']);
+        Route::post('product/{id}', [ProductAdminController::class, 'updateProductWithFileUpload']);
+
+
         Route::resource('warehouse', WarehouseController::class); // TODO: CHANGE TO ADMIN
         //Route::put('/warehouse-update-product/{id}', [WarehouseController::class, 'addProductToWarehouse']);
 

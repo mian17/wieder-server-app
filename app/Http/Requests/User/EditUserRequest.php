@@ -13,7 +13,6 @@ class EditUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // TODO: TURN OFF AFTER TESTING
         return true;
     }
 
