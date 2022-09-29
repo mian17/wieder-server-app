@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\EditProductRequest;
 use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Product\UploadImagesForModelRequest;
+use App\Models\CartItem;
 use App\Models\Kind;
+use App\Models\KindImage;
 use App\Models\Product;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use JsonException;
 
 class ProductAdminController extends Controller
@@ -36,13 +38,15 @@ class ProductAdminController extends Controller
 //            ->get();
 
 
-        $products = Product::with(['category', 'kinds', 'merchants', 'warehouses']);
+        $products = Product::with(['category', 'kinds', 'merchants', 'warehouses'])
+            ->where('status', '=', 'Hiển thị')
+            ->orWhere('status', '=', 'Ẩn');
 
         if ($request->get('filter')) {
             $products
                 ->where('product.name', 'LIKE', '%' . $request->get('filter') . '%')
-                ->orWhere('product.SKU', 'LIKE', '%' . $request->get('filter') . '%')
-                ->orWhere('category.name', 'LIKE', '%' . $request->get('filter') . '%')
+//                ->orWhere('product.SKU', 'LIKE', '%' . $request->get('filter') . '%')
+//                ->orWhere('category.name', 'LIKE', '%' . $request->get('filter') . '%')
                 ->limit(10);
         }
 
@@ -50,15 +54,70 @@ class ProductAdminController extends Controller
         return response()->json($products->paginate(10));
     }
 
+
     /**
-     * Show the form for creating a new resource.
+     * Get all products, this route is responsible for adding images for product details page.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function create()
+    public function productIndexForImage(): JsonResponse
     {
-        //
+        $products = Product::get(['id', 'name']);
+        return response()->json($products);
     }
+
+    /**
+     * Get models related to the selected product
+     *
+     * @param int  $productId
+     * @return JsonResponse
+     */
+    public function modelIndexForImage(int $productId): JsonResponse
+    {
+        $models = Kind::where('product_id', $productId)->get(['id', 'name']);
+//        echo '<pre>', print_r($models), '</pre>';
+        return response()->json($models);
+    }
+
+    /**
+     * Upload images to a specific model
+     *
+     * @param UploadImagesForModelRequest $request
+     * @return Response
+     */
+    public function uploadImagesForModel(UploadImagesForModelRequest $request): Response
+    {
+        $productId = $request->get('product_id');
+        $modelId = $request->get('model_id');
+        $requestImages = $request->file('images');
+
+        $editingProduct = Product::findOrfail($productId);
+        $editingModel = Kind::findOrFail($modelId);
+
+        if ($editingProduct && $editingModel) {
+            $existingImages = $editingModel->images;
+            foreach($existingImages as $image) {
+                $image->delete();
+            }
+
+            foreach($requestImages as $requestImage) {
+                $movedPath = '/' . uploadFile($requestImage, 'img/product');
+                KindImage::create(['model_id' => $modelId, 'url' => $movedPath]);
+            }
+        }
+
+        return response(['message' => 'Tải hình ảnh mới cho sản phẩm thành công']);
+    }
+
+//    /**
+//     * Show the form for creating a new resource.
+//     *
+//     * @return Response
+//     */
+//    public function create()
+//    {
+//        //
+//    }
 
     /**
      * Store a newly created resource in storage.
@@ -70,7 +129,6 @@ class ProductAdminController extends Controller
     {
 
         try {
-
             $attributes = $request->except('merchant_id', 'warehouse_id', 'models');
 
             if ($attributes['price'] > $attributes['cost_price']) {
@@ -134,7 +192,7 @@ class ProductAdminController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit($id)
     {
@@ -178,18 +236,12 @@ class ProductAdminController extends Controller
                 $decodedWarehouseIds = json_decode($request->get('warehouse_ids'), false, 512, JSON_THROW_ON_ERROR);
 
                 $images = $request->file('models');
-                // Case 1: No images
-                // Case 2: Change only one image
-                // Case 3: Change all images
-                // Case 4: Remove all models
-
                 $modelChangesRequest = $request->get('models');
 
                 //////////////////////////////////////////////////////////////////////////////////
-                // TODO: UNCOMMENT THIS AFTER TESTING
-//                $editingProduct->merchants()->sync($decodedMerchantIds);
-//
-//                $editingProduct->warehouses()->sync($decodedWarehouseIds);
+                //
+                $editingProduct->merchants()->sync($decodedMerchantIds);
+                $editingProduct->warehouses()->sync($decodedWarehouseIds);
 
                 $incomingRequestHasNoFile = !$images || count($images) === 0;
 
@@ -200,17 +252,14 @@ class ProductAdminController extends Controller
                 // Case 1: No images - which means the request has NO specified changes for models
                 // Same result for image url in database
                 // BUT: USER CAN CHANGE TEXT BASED DATA AND USER HAS NOT BEEN ADDING ANY MODELS
-                if ($incomingRequestHasNoFile) {
-                    echo 'Không có file';
-                    // Check if user has not been adding any more models to the product
-                    if (count($modelChangesRequest) === count($relatedModels)) {
-                        for ($i = 0, $iMax = count($relatedModels); $i < $iMax; $i++) {
-                            // Update model's information according to the request
-                            $relatedModels[$i]->update($modelChangesRequest[$i]);
+                // Check if user has not been adding any more models to the product
+                if ($incomingRequestHasNoFile && count($modelChangesRequest) === count($relatedModels)) {
+                    for ($i = 0, $iMax = count($relatedModels); $i < $iMax; $i++) {
+                        // Update model's information according to the request
+                        $relatedModels[$i]->update($modelChangesRequest[$i]);
 
-                            if ($i !== 0) {
-                                $relatedModels[$i]->update(['image_2' => NULL]);
-                            }
+                        if ($i !== 0) {
+                            $relatedModels[$i]->update(['image_2' => NULL]);
                         }
                     }
                 }
@@ -219,12 +268,8 @@ class ProductAdminController extends Controller
                 // Case 2: Has Images - which means the request HAS specified changes for models
                 // POSSIBLE USE CASES: 2-1: User changed one of the images for one existing model
                 //                     2-2: User changed all images for one existing model
-//                echo '<pre>', print_r($incomingRequestHasNoFile), '</pre>';
                 if (!$incomingRequestHasNoFile) {
-//                    echo "Có file";
                     $modelRequests = $request->input('models');
-//                    echo '<pre>', print_r($request->input('models')), '</pre>';
-
                     // JOINING FILE AND REQUEST INPUT ARRAY FOR ITERATION
 
                     // IF ARRAY KEY EXISTS, WHICH MEANS THE DATA IS A STRING AND NOT AN UPLOADED FILE
@@ -255,47 +300,10 @@ class ProductAdminController extends Controller
                             }
                         }
                     }
-//                    foreach($modelRequests as $requests) {
 
-
-
-//                    }
-//                    for ($i = 0, $iMax = count($modelRequests); $i < $iMax; $i++) {
-//                        foreach ($images[$i] as $key => $image) {
-//                            $models[$i][$key] = '/' . uploadFile($image, 'img/product');
-//                        }
-//
-//                        $models[$i]['product_id'] = $editingProduct->id;
-//                        Kind::create($models[$i]);
-//                    }
-//                    for ($i = 0, $iMax = count($relatedModels); $i < $iMax; $i++) {
-////                        echo '<pre>', print_r($images[$i]), '</pre>';
-////                        foreach ($images[$i] as $image) {
-////                            if (is_object($image)) {
-////                                echo 'Đây là file';
-////
-////                                $fileExtension = $image->getClientOriginalExtension();
-////                                echo '<pre>', print_r($image), '</pre>';
-////
-////                                if (in_array($fileExtension, $allowedExtensions, true)) {
-////                                    echo 'Và là hình';
-////                                    $fileSize = $image->getSize();
-////
-////                                    echo $fileSize;
-////                                } else {
-////                                    echo 'Nhưng không phải là hình';
-////                                }
-////                            } else {
-////                                echo 'Đây không phải là file';
-////                            }
-////                        }
-//                    }
                 }
             }
-
-            return response(["message' => 'Đã nhận được request update product cho sản phẩm $id"], 200);
-
-
+            return response(["message' => 'Cập nhật thông tin cho sản phẩm có $id thành công"], 200);
         } catch (QueryException $e) {
             return response(['message' => "Tạo sản phẩm mới không thành công", "error" => $e], 401);
         } catch (JsonException $e) {
@@ -308,12 +316,93 @@ class ProductAdminController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function destroy($id)
+    public function destroy(int $id): Response
     {
-        //
+        if (auth()->user()->tokenCan('admin')) {
+            $productReadyForDeletion = Product::find($id);
+
+            // Status code in trash, since status column is varchar, strict comparison as string is necessary
+            if ($productReadyForDeletion && $productReadyForDeletion->status === "-1") {
+                $relatedCarts = CartItem::whereProductId($id)->get();
+                $relatedKinds = Kind::whereProductId($id)->get();
+//            $relatedImages = Image::whereProductId($id)->get();
+                foreach ($relatedCarts as $cart) {
+                    $cart->delete();
+                }
+
+                foreach ($relatedKinds as $kind) {
+                    foreach ($kind->images as $image) {
+                        $image->delete();
+                    }
+
+                    $kind->delete();
+                }
+
+
+                $productReadyForDeletion->merchants()->detach();
+                $productReadyForDeletion->warehouses()->detach();
+
+
+                $productReadyForDeletion->delete();
+            }
+            return response(['message' => 'Xóa sản phẩm vĩnh viễn thành công'], 200);
+
+        }
+
+//        Product::find($id)->delete();
+        return response(['message' => 'Chỉ có admin mới có quyền xóa sản phẩm'], 401);
     }
 
+    /**
+     * Move a specified resource to trash for easy recovery
+     * if something accidentally goes wrong on user's end
+     * @param int $id
+     * @return Response
+     */
+    public function moveItemToTrash(int $id): Response
+    {
+        $productReadyForMovingToTrash = Product::find($id);
+
+        $productReadyForMovingToTrash->update(['status' => -1]);
+
+        return response(['message' => 'Di chuyển sản phẩm vào thùng rác thành công'], 200);
+    }
+
+    /**
+     * Move a specified resource out of trash
+     * @param int $id
+     * @return Response
+     */
+    public function restoreItem(int $id): Response
+    {
+        $productReadyForRestoring = Product::find($id);
+
+        $productReadyForRestoring->update(['status' => "Ẩn"]);
+
+        return response(['message' => 'Khôi phục sản phẩm thành công'], 200);
+    }
+
+    /**
+     * Get products that are in trash
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function itemsInTrashIndex(Request $request): JsonResponse
+    {
+        $productsThatAreInTrash = Product::with(['category', 'kinds', 'merchants', 'warehouses'])
+            ->where('status', '=', -1);
+        if ($request->get('filter')) {
+            $productsThatAreInTrash
+                ->where('product.name', 'LIKE', '%' . $request->get('filter') . '%')
+//                ->orWhere('product.SKU', 'LIKE', '%' . $request->get('filter') . '%')
+//                ->orWhere('category.name', 'LIKE', '%' . $request->get('filter') . '%')
+                ->limit(10);
+        }
+
+        return response()->json($productsThatAreInTrash->paginate(10));
+    }
 
 }

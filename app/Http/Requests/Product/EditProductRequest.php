@@ -27,14 +27,15 @@ class EditProductRequest extends FormRequest
 //        \Log::debug($this->request->all());
         $productId = $this->route('id');
         return [
-            'name' => 'required|string|min:4|max:255|unique:product,name,' . $productId,
+//            'name' => 'required|string|min:4|max:255|unique:product,name,' . $productId,
+            'name' => 'required|string|min:4|max:255',
             'brand' => 'required|string|min:4|max:255',
             'category_id' => 'required|integer|numeric|min:1|exists:category,id',
             'summary' => 'required|string|min:4|max:255',
             'desc' => 'required|string|min:4|max:5000',
             'detail_info' => 'required|string|min:4|max:5000',
 
-            'SKU' => 'required|string|min:8|max:64|unique:product,SKU,' . $productId,
+            'SKU' => 'required|string|min:8|max:64',
             'mass' => 'required|integer|numeric|min:1|max:100000',
             'cost_price' => 'required|integer|numeric|min:500|max:100000000',
             'price' => 'required|integer|numeric|min:500|max:100000000',

@@ -70,7 +70,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $model->uuid = Uuid::uuid4();
         });
     }
-
+//
     public function getRouteKeyName(): string
     {
         return 'uuid';

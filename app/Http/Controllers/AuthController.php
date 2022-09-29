@@ -40,8 +40,9 @@ class AuthController extends Controller
 
             // Event listener to send email to
             event(new Registered($newlyCreatedUser));
+            $roles = $newlyCreatedUser->roles->pluck('role_name')->all();
 
-            $token = $newlyCreatedUser->createToken('user-token')->plainTextToken;
+            $token = $newlyCreatedUser->createToken('user-token', $roles)->plainTextToken;
 
             $response = [
                 'user' => $newlyCreatedUser,
@@ -52,7 +53,8 @@ class AuthController extends Controller
         } catch (QueryException $e) {
 //            echo '<pre>', print_r($e), '</pre>';
             $response = [
-                'message' => 'Không sao lưu được'
+                'message' => 'Không sao lưu được',
+                'error' => $e
             ];
             return response($response, 400);
         }
@@ -86,7 +88,7 @@ class AuthController extends Controller
             }
 
             // Assign token abilities according to user's role
-            $authenticatedUser = auth()->user();
+//            $authenticatedUser = auth()->user();
 
 //            if ($authenticatedUser->isAdmin()) {
 ////                echo 'Admin hoặc moderator nè';
@@ -112,14 +114,16 @@ class AuthController extends Controller
 //                return response($response, 201);
 //            }
 
-            $roles = $authenticatedUser->roles->pluck('role_name')->all();
-            $token = $authenticatedUser->createToken('user-token', $roles)->plainTextToken;
+            $roles = $user->roles->pluck('role_name')->all();
+//            echo '<pre>', print_r(gettype($roles)), '</pre>';
+//            echo '<pre>', print_r([...$roles]), '</pre>';
+            $token = $user->createToken('user-token', $roles)->plainTextToken;
             $response = [
-                    'user' => $authenticatedUser,
+                    'user' => $user,
 //                    'roles' => $roles,
                     'token' => $token,
             ];
-
+//
             return response($response, 201);
 
 
@@ -134,8 +138,9 @@ class AuthController extends Controller
      *
      * @return Response
      */
-    public function logout()
+    public function logout(Request $request)
     {
+//        echo '<pre>', print_r($request->user()), '</pre>';
         auth()->user()->tokens()->delete();
 
         return response(['message' => 'Bạn đã đăng xuất'], 200);

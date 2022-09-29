@@ -183,6 +183,16 @@ Route::prefix('admin')->group(function () {
         Route::post('product', [ProductAdminController::class, 'store']);
         Route::get('product/{id}', [ProductAdminController::class, 'show']);
         Route::post('product/{id}', [ProductAdminController::class, 'updateProductWithFileUpload']);
+        Route::get('product-to-trash/{id}', [ProductAdminController::class, 'moveItemToTrash']);
+        Route::get('product-trash', [ProductAdminController::class, 'itemsInTrashIndex']);
+        Route::get('product-trash-restore/{id}', [ProductAdminController::class, 'restoreItem']);
+        Route::delete('product/{id}', [ProductAdminController::class, 'destroy']);
+
+        // Add image for product, for client's product details page operations
+        Route::get('product-details', [ProductAdminController::class, 'productIndexForImage']);
+        Route::get('product-details/{productId}/models', [ProductAdminController::class, 'modelIndexForImage']);
+        Route::post('product-details/models/image-upload',
+            [ProductAdminController::class, 'uploadImagesForModel']);
 
 
         Route::resource('warehouse', WarehouseController::class); // TODO: CHANGE TO ADMIN
