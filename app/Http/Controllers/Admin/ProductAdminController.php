@@ -129,6 +129,7 @@ class ProductAdminController extends Controller
     {
 
         try {
+            DB::beginTransaction();
             $attributes = $request->except('merchant_id', 'warehouse_id', 'models');
 
             if ($attributes['price'] > $attributes['cost_price']) {
@@ -165,11 +166,13 @@ class ProductAdminController extends Controller
                     Kind::create($models[$i]);
                 }
             }
-
+            DB::commit();
             return response(['message' => "Tạo sản phẩm mới thành công", 'createdProduct' => $createdProduct], 200);
         } catch (QueryException $e) {
+            DB::rollback();
             return response(['message' => "Tạo sản phẩm mới không thành công", "error" => $e], 401);
         } catch (JsonException $e) {
+            DB::rollback();
             return response(['message' => "JSON decoding process failed ", 'error' => $e], 422);
         }
     }

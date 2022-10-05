@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\DashboardAdminController;
+use App\Http\Controllers\Admin\OrderAdminController;
+use App\Http\Controllers\Admin\OrderStatusAdminController;
+use App\Http\Controllers\Admin\PaymentDetailsAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\AuthController;
@@ -23,6 +26,7 @@ use Illuminate\Support\Facades\Route;
 
 
 use Illuminate\Http\Request;
+
 //use App\Http\Requests\EmailVerificationRequest;
 
 /*
@@ -128,7 +132,6 @@ Route::post('/reset-password', function (Request $request) {
 })->middleware('guest')->name('password.update');
 
 
-
 ////////////////////////////////////////////////////////////////////////
 // Protected Routes
 Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator,customer']], function () {
@@ -167,18 +170,19 @@ Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator,customer
     Route::resource('discount', DiscountController::class);
 
 
-
     Route::resource('cart', CartItemController::class);
     Route::get('/user-cart', [CartItemController::class, 'getCartItemsFromAuthorizedUser']);
 });
 
+/////////////////////////////////////////////////////////
+// ADMIN ROUTES
 Route::prefix('admin')->group(function () {
-    Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator']], function() {
+    Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator']], function () {
 //    Route::get('/admin', [DashboardAdminController::class, 'index']);
 
-        Route::resource('category', CategoryAdminController::class);
-
-//        Route::resource('product', ProductAdminController::class); // TODO: CHANGE TO ADMIN
+        /////////////////////////////////////////////////////////
+        // PRODUCTS
+//        Route::resource('product', ProductAdminController::class);
         Route::get('product', [ProductAdminController::class, 'index']);
         Route::post('product', [ProductAdminController::class, 'store']);
         Route::get('product/{id}', [ProductAdminController::class, 'show']);
@@ -194,9 +198,31 @@ Route::prefix('admin')->group(function () {
         Route::post('product-details/models/image-upload',
             [ProductAdminController::class, 'uploadImagesForModel']);
 
+        /////////////////////////////////////////////////////////
+        // CATEGORIES
+//        Route::resource('category', CategoryAdminController::class);
+        Route::get('category', [CategoryAdminController::class, 'index']);
+        Route::post('category', [CategoryAdminController::class, 'store']);
+        Route::get('category/{id}', [CategoryAdminController::class, 'show']);
+        Route::post('category/{id}', [CategoryAdminController::class, 'update']);
+        Route::delete('category/{id}', [CategoryAdminController::class, 'destroy']);
 
         Route::resource('warehouse', WarehouseController::class); // TODO: CHANGE TO ADMIN
         //Route::put('/warehouse-update-product/{id}', [WarehouseController::class, 'addProductToWarehouse']);
+
+        /////////////////////////////////////////////////////////
+        // ORDERS
+        Route::resource('order', OrderAdminController::class);
+        Route::patch('order-status-update/{uuid}', [OrderAdminController::class, 'updateOrderStatus']);
+//        Route::post('order/{id}', [OrderAdminController::class, 'update']);
+
+        // Order Statuses
+        Route::get('order-status', [OrderStatusAdminController::class, 'getOrderStatus']);
+
+
+        /////////////////////////////////////////////////////////
+        // PAYMENT DETAILS
+        Route::resource('payment-details', PaymentDetailsAdminController::class);
 
         Route::resource('merchant', MerchantController::class);
         Route::get('/merchants/products', [MerchantController::class, 'indexWithProducts']);

@@ -13,7 +13,8 @@ class EditCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        $user = auth()->user();
+        return $user->tokenCan('admin') || $user->tokenCan('moderator');
     }
 
     /**
@@ -23,11 +24,11 @@ class EditCategoryRequest extends FormRequest
      */
     public function rules(): array
     {
+        $categoryId = $this->route('id');
         return [
-            'name' => 'required|string|min:2|max:64',
-            'img_url' => 'required|min:4|max:255|unique:category,img_url',
-            'img_file' => 'image|mimes:png,jpg,jpeg|max:2048',
-            'parent_category_id' => 'integer|numeric|min:0',
+            'name' => 'required|string|min:2|max:64|unique:category,name,' . $categoryId,
+            'image' => $this->getValidationRule('image'),
+            'parent_category_id' => 'nullable|integer|numeric|min:0|exists:category,id',
         ];
     }
 
@@ -44,18 +45,25 @@ class EditCategoryRequest extends FormRequest
             'name.max' => 'Tên danh mục sản phẩm dài quá',
             'name.unique' => 'Tên danh mục sản phẩm này đã tồn tại',
 
-            'img_url.required' => 'Bạn cần chọn hình',
-            'img_url.min' => 'Url hình ngắn quá',
-            'img_url.max' => 'Url hình dài quá',
-            'img_url.unique' => 'Hình này đã được chọn cho danh mục khác hoặc bản thân danh mục này. Hãy đảm bảo rằng hình bạn chọn cho danh mục cần thay đổi này không bị trùng với danh mục khác hoặc bản thân danh mục này',
 
-            'img_file.required' => 'Bạn cần nhập hình',
-            'img_file.image' => 'Bạn cần thêm hình với kiểu dữ liệu: png, jpg, jpeg',
-            'img_file.max' => 'Kích cỡ hình cần dưới 2MB',
+            'image.required' => 'Thiếu thông tin',
+            'image.image' => 'Bạn cần thêm hình với kiểu dữ liệu: png, jpg, jpeg',
+            'image.dimensions' => 'Hình của bạn cần có tỉ lệ 16:9',
+            'image.max' => 'Kích cỡ hình cần dưới 2MB',
+            'image.string' => 'Sai dữ liệu',
 
             'parent_category_id.integer' => 'Sai dữ liệu',
             'parent_category_id.numeric' => 'Sai dữ liệu',
             'parent_category_id.min' => 'Sai dữ liệu',
+            'parent_category_id.exists' => 'Sai dữ liệu'
         ];
+    }
+
+    public function getValidationRule(String $key): string
+    {
+        if (request()->hasFile($key)) {
+            return "required|image|mimes:png,jpg,jpeg|dimensions:ratio=16/9|max:2048";
+        }
+        return "required|string";
     }
 }

@@ -83,7 +83,7 @@ class Order extends Model
      */
     public function statuses(): HasMany
     {
-        return $this->hasMany(Status::class);
+        return $this->hasMany(Status::class, 'id', 'status_id');
     }
 
     /**
@@ -94,6 +94,14 @@ class Order extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class, 'order_uuid', 'uuid');
+    }
+
+    /**
+     * Get the payment details for a specific order
+     */
+    public function paymentDetails()
+    {
+        return $this->hasOne(PaymentDetails::class, 'uuid');
     }
 
 }

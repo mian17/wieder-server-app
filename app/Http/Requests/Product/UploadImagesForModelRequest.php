@@ -40,21 +40,25 @@ class UploadImagesForModelRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'product_id.required' => 'Sai dữ liệu',
+            'product_id.required' => 'Bạn cần chọn sản phẩm mà bạn cần đăng hình ảnh',
             'product_id.integer' => 'Sai dữ liệu',
             'product_id.numeric' => 'Sai dữ liệu',
             'product_id.exists' => 'Sai dữ liệu',
 
-            'model_id.required' => 'Sai dữ liệu',
+            'model_id.required' => 'Bạn cần chọn kiểu loại của sản phẩm mà bạn cần đăng hình ảnh',
             'model_id.integer' => 'Sai dữ liệu',
             'model_id.numeric' => 'Sai dữ liệu',
             'model_id.exists' => 'Sai dữ liệu',
 
-            'images.required' => 'Sai dữ liệu',
+            'images.required' => 'Bạn cần thêm hình',
             'images.array' => 'Sai dữ liệu',
 
-            'images.*.required' => 'Sai dữ liệu',
-            'images.*.array' => '',
+            'images.*.required' => 'Bạn cần thêm hình',
+            'images.*.mimes' => 'Hình của bạn cần có định dạng: png, jpg, jpeg',
+            'images.*.dimensions' => 'Hình của bạn cần phải đúng tỉ lệ 1:1',
+            'images.*.max' => 'Hình của bạn cần phải ít hơn 2Mb',
+
+
 
 
         ];

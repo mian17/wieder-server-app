@@ -61,6 +61,7 @@ class StoreOrderRequest extends FormRequest
             'receiver_name.max' => 'Họ và tên người nhận dài quá',
 
             'receiver_email.required' => 'Bạn cần nhập email của người nhận',
+            'receiver_email.email' => 'Sai định dạng email',
             'receiver_email.string' => 'Sai dữ liệu',
             'receiver_email.min' => 'Email người nhận ngắn quá',
             'receiver_email.max' => 'Email người nhận dài quá',
@@ -78,10 +79,6 @@ class StoreOrderRequest extends FormRequest
             'total.integer' => 'Sai dữ liệu',
             'total.numeric' => 'Sai dữ liệu',
             'total.min' => 'Sai dữ liệu',
-
-//            'status_id.required' => 'Thiếu thông tin trạng thái đơn hàng',
-//            'status_id.integer' => 'Sai dữ liệu',
-//            'status_id.numeric' => 'Sai dữ liệu',
 
             'payment_method_id.required' => 'Thiếu thông tin phương thức thanh toán',
             'payment_method_id.integer' => 'Sai dữ liệu',

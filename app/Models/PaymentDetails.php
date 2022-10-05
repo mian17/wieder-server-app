@@ -55,4 +55,12 @@ class PaymentDetails extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the payment methods for a specific order
+     */
+    public function methods()
+    {
+        return $this->hasMany(PaymentMethod::class, 'id', 'payment_method_id');
+    }
 }

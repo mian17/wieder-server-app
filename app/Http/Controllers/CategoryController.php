@@ -51,22 +51,22 @@ class CategoryController extends Controller
         return response(['message' => "Hiển thị danh mục thành công", 'category' => $categoryProducts], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param StoreCategoryRequest $request
-     * @return Response
-     */
-    public function store(StoreCategoryRequest $request): Response
-    {
-        try {
-            $attributes = $this->uploadImage($request);
-            Category::create($attributes);
-            return response(['message' => "Thêm danh mục mới thành công"], 200);
-        } catch (QueryException $e) {
-            return response(['message' => "Thêm danh mục không thành công", "error" => $e], 401);
-        }
-    }
+//    /**
+//     * Store a newly created resource in storage.
+//     *
+//     * @param StoreCategoryRequest $request
+//     * @return Response
+//     */
+//    public function store(StoreCategoryRequest $request): Response
+//    {
+//        try {
+//            $attributes = $this->uploadImage($request);
+//            Category::create($attributes);
+//            return response(['message' => "Thêm danh mục mới thành công"], 200);
+//        } catch (QueryException $e) {
+//            return response(['message' => "Thêm danh mục không thành công", "error" => $e], 401);
+//        }
+//    }
 
     /**
      * Display the specified resource and its children
@@ -172,21 +172,16 @@ class CategoryController extends Controller
         return response(['message' => "Cập nhật danh mục không thành công"], 401);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function destroy(int $id): Response
-    {
-        try {
-            Category::find($id)->delete();
-            return response(["message" => "Đã nhận được yêu cầu xóa danh mục"], 200);
-        } catch (QueryException $e) {
-            return response(["message" => "Không xóa danh mục được", "error" => $e], 401);
-        }
-    }
+//    /**
+//     * Remove the specified resource from storage.
+//     *
+//     * @param int $id
+//     * @return Response
+//     */
+//    public function destroy(int $id): Response
+//    {
+//
+//    }
 
 
     /**
