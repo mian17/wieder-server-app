@@ -109,15 +109,6 @@ class ProductAdminController extends Controller
         return response(['message' => 'Tải hình ảnh mới cho sản phẩm thành công']);
     }
 
-//    /**
-//     * Show the form for creating a new resource.
-//     *
-//     * @return Response
-//     */
-//    public function create()
-//    {
-//        //
-//    }
 
     /**
      * Store a newly created resource in storage.
@@ -191,16 +182,7 @@ class ProductAdminController extends Controller
         return response()->json($desiredProduct);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+
 
 //    /**
 //     * Update the specified resource in storage.

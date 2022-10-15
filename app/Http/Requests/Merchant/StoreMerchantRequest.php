@@ -13,7 +13,8 @@ class StoreMerchantRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        $user = auth()->user();
+        return $user->tokenCan('admin') || $user->tokenCan('moderator');
     }
 
     /**

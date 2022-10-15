@@ -13,8 +13,8 @@ class EditWarehouseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // TODO: TURN OFF AFTER TESTING
-        return true;
+        $user = auth()->user();
+        return $user->tokenCan('admin') || $user->tokenCan('moderator');
     }
 
     /**

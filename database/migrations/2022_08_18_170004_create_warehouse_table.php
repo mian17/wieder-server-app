@@ -19,6 +19,7 @@ class CreateWarehouseTable extends Migration
             $table->string('address');
             $table->string('phone_number');
             $table->string('email');
+            $table->boolean('deleted')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
         });

@@ -19,6 +19,7 @@ class CreateMerchantTable extends Migration
             $table->string('address')->unique('address');
             $table->string('phone_number')->unique('phone_number');
             $table->string('email')->unique('email');
+            $table->boolean('deleted')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
         });

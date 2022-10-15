@@ -1,31 +1,28 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryAdminController;
-use App\Http\Controllers\Admin\DashboardAdminController;
+use App\Http\Controllers\Admin\MerchantAdminController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\OrderStatusAdminController;
 use App\Http\Controllers\Admin\PaymentDetailsAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
+use App\Http\Controllers\Admin\WarehouseAdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartItemController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\KindController;
-use App\Http\Controllers\MerchantController;
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
-use App\Http\Controllers\WarehouseController;
-use App\Http\Middleware\EnsureAdminRole;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
-
-use Illuminate\Http\Request;
 
 //use App\Http\Requests\EmailVerificationRequest;
 
@@ -183,6 +180,9 @@ Route::prefix('admin')->group(function () {
         /////////////////////////////////////////////////////////
         // PRODUCTS
 //        Route::resource('product', ProductAdminController::class);
+        Route::get('warehouse-product', [WarehouseAdminController::class, 'indexProduct']);
+        Route::get('merchant-product', [MerchantAdminController::class, 'indexProduct']);
+
         Route::get('product', [ProductAdminController::class, 'index']);
         Route::post('product', [ProductAdminController::class, 'store']);
         Route::get('product/{id}', [ProductAdminController::class, 'show']);
@@ -207,7 +207,6 @@ Route::prefix('admin')->group(function () {
         Route::post('category/{id}', [CategoryAdminController::class, 'update']);
         Route::delete('category/{id}', [CategoryAdminController::class, 'destroy']);
 
-        Route::resource('warehouse', WarehouseController::class); // TODO: CHANGE TO ADMIN
         //Route::put('/warehouse-update-product/{id}', [WarehouseController::class, 'addProductToWarehouse']);
 
         /////////////////////////////////////////////////////////
@@ -219,19 +218,34 @@ Route::prefix('admin')->group(function () {
         // Order Statuses
         Route::get('order-status', [OrderStatusAdminController::class, 'getOrderStatus']);
 
+        // USERS
+        Route::resource('user', UserAdminController::class);
+        Route::get('user-to-trash/{uuid}', [UserAdminController::class, 'moveToTrash']);
+        Route::get('user-restore/{uuid}', [UserAdminController::class, 'restoreUser']);
 
         /////////////////////////////////////////////////////////
         // PAYMENT DETAILS
         Route::resource('payment-details', PaymentDetailsAdminController::class);
 
-        Route::resource('merchant', MerchantController::class);
-        Route::get('/merchants/products', [MerchantController::class, 'indexWithProducts']);
-        Route::get('/merchant/{merchant_id}/product', [MerchantController::class, 'showWithProducts']);
+        Route::resource('merchant', MerchantAdminController::class);
+        Route::get('/merchants/products', [MerchantAdminController::class, 'indexWithProducts']);
+        Route::get('/merchant/{merchant_id}/product', [MerchantAdminController::class, 'showWithProducts']);
 
+        /////////////////////////////////////////////////////////
+        // WAREHOUSE
+        Route::resource('warehouse', WarehouseAdminController::class);
+        Route::get('/warehouse-to-trash/{warehouse_id}', [WarehouseAdminController::class, 'moveToTrash']);
+
+        /////////////////////////////////////////////////////////
+        // MERCHANT
+        Route::get('/merchant-to-trash/{merchant_id}', [MerchantAdminController::class, 'moveToTrash']);
+
+        /////////////////////////////////////////////////////////
+        // CHART
+        Route::post('/chart-analysis-order-count', [OrderAdminController::class, 'chartAnalysisOnOrderCount']);
 
 //    Route::get('/admin/user-authorized', [UserAdminController::class, 'showLoggedInUserInfo']);
     });
 });
-
 
 

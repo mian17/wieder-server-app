@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ChartAnalysisOnOrderCountRequest;
 use App\Http\Requests\Order\EditOrderRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -10,6 +11,7 @@ use App\Models\PaymentDetails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class OrderAdminController extends Controller
@@ -145,6 +147,28 @@ class OrderAdminController extends Controller
 
         return response(['message' => 'Đã xóa đơn hàng thành công'], 200);
     }
+
+    /**
+     * Get number of orders based on requested year
+     * from 2022
+     *
+     * @param ChartAnalysisOnOrderCountRequest $request
+     * @return JsonResponse
+     */
+    public function chartAnalysisOnOrderCount(ChartAnalysisOnOrderCountRequest $request): JsonResponse
+    {
+        $requestedYear = Carbon::create($request->get('year'));
+        $ordersBasedOnMonth = [];
+
+        for($i = 1; $i <= 12; $i++){
+            $ordersBasedOnMonth[] = Order::whereYear('created_at', '=', $requestedYear)
+                ->whereMonth('created_at', $i)
+                ->count();
+        }
+        return response()->json($ordersBasedOnMonth);
+    }
+
+//    public function
 
 
 }

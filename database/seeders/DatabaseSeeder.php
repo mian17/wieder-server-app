@@ -54,10 +54,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory(10)->create();
-//        Product::factory(2000)->create(); // TODO: COMMENT THIS AFTER TESTING PRODUCT PAGINATION
+//        Product::factory(2000)->create(); //
 
         $this->call([
-            CartItemSeeder::class, // TODO: UNCOMMENT THIS AFTER TESTING PRODUCT PAGINATION
+            CartItemSeeder::class,
         ]);
 
         $admin = User::where('username', 'admin')->first();
@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
 
         foreach(User::all() as $user) {
             if ($user->username === 'admin') continue;
-            $user->roles()->attach($roles[rand(0, count($roles) - 1)]);
+            $user->roles()->attach($roles[rand(1, count($roles) - 1)]);
         }
 
         $allMerchants = Merchant::all();

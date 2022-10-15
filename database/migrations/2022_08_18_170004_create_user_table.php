@@ -27,6 +27,7 @@ class CreateUserTable extends Migration
             $table->string('address');
             $table->integer('reward_points')->default(0);
             $table->string('avatar')->default('/img/avatar/default-avatar.png');
+            $table->boolean('deleted')->nullable();
             $table->timestamp('last_sign_in')->useCurrentOnUpdate()->useCurrent();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();

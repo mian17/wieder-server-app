@@ -1,26 +1,58 @@
 <?php
+namespace App\Http\Controllers\Admin;
 
-namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Merchant\EditMerchantRequest;
 use App\Http\Requests\Merchant\StoreMerchantRequest;
 use App\Models\Merchant;
-use App\Models\Product;
+use App\Models\Warehouse;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
-class MerchantController extends Controller
+class MerchantAdminController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
+     * @return JsonResponse|Response
+     */
+    public function index(Request $request): JsonResponse|Response
+    {
+        try {
+            $itemPerPage = $request->get('itemPerPage') ?: 10;
+            if ($request->has('filter') && strlen($request->get('filter')) > 2) {
+                $filter = $request->get('filter');
+                $warehouses = Merchant::whereNull('deleted')
+                    ->where('name', 'LIKE', '%' . $filter . '%')
+                    ->orWhere('name', 'LIKE', '%' . $filter . '%')
+                    ->orWhere('address', 'LIKE', '%' . $filter . '%')
+                    ->orWhere('email', 'LIKE', '%' . $filter . '%')
+                    ->orWhere('phone_number', 'LIKE', '%' . $filter . '%')
+                    ->paginate($itemPerPage);
+            } else {
+                $warehouses = Merchant::whereNull('deleted')->paginate($itemPerPage);
+
+            }
+
+
+            return response()->json($warehouses);
+        } catch (QueryException $e) {
+            return response(['message' => 'Có lỗi đã xảy ra', 422]);
+        }
+
+    }
+
+    /**
+     * Index for product form
+     *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function indexProduct(): JsonResponse
     {
-        return response()->json(Merchant::all());
+       return response()->json(Merchant::all());
     }
 
     /**
@@ -96,9 +128,6 @@ class MerchantController extends Controller
         $desiredMerchant = Merchant::findOrFail($id);
         $desiredMerchant->update($attributes);
 
-        // Add a product to a merchant
-        $desiredMerchant->products()->attach($attributes['product_id']);
-
         return response(['message' => "Cập nhật nhà bán thành công", 'merchant' => $desiredMerchant], 200);
     }
 
@@ -110,7 +139,28 @@ class MerchantController extends Controller
      */
     public function destroy(int $id): Response
     {
-        Merchant::find($id)->delete();
-        return response(['message' => "Đã xóa nhà bán thành công"], 200);
+        if (auth()->user()->tokenCan('admin')) {
+            Merchant::find($id)->delete();
+            return response(['message' => "Đã xóa nhà bán thành công"], 200);
+        }
+
+        return response(['message' => 'Bạn không có quyền xóa'], 422);
+    }
+
+    /**
+     * Fake delete merchant
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function moveToTrash(int $id): Response
+    {
+        if (auth()->user()->tokenCan('admin')) {
+            $desiredMerchant = Merchant::findOrFail($id);
+            $desiredMerchant->update(['deleted' => true]);
+            return response(['message' => 'Xóa nhà bán thành công'], 200);
+        }
+
+        return response(['message' => 'Bạn không có quyền xóa'], 401);
     }
 }

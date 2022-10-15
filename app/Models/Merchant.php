@@ -27,6 +27,7 @@ class Merchant extends Model
         'address',
         'phone_number',
         'email',
+        'deleted',
     ];
 
     /**

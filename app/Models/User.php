@@ -117,7 +117,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'password',
         'avatar',
-        'email_verified_at'
+        'email_verified_at',
+        'deleted'
     ];
 
     /**
@@ -206,4 +207,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return false;
     }
+
+//    public function getTotalMoneySpent() {
+//        $total = 0;
+//        return $this->orders;
+////        return $this->orders->each->sum(function($order) {
+////            echo $order->total;
+////        });
+//    }
 }

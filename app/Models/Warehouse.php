@@ -27,6 +27,7 @@ class Warehouse extends Model
         'address',
         'phone_number',
         'email',
+        'deleted',
     ];
 
     /**

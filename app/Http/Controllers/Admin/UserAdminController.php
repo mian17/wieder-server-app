@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Models\Order;
 use App\Models\User;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -16,11 +20,30 @@ class UserAdminController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return JsonResponse|Response
      */
-    public function index()
+    public function index(Request $request): JsonResponse|Response
     {
-        //
+        try {
+            $itemPerPage = $request->get('itemPerPage') ?: 10;
+
+            if ($request->has('filter') && strlen($request->get('filter')) > 2) {
+                $filter = $request->get('filter');
+                $users = User::whereNull('deleted')
+                    ->where('uuid', 'LIKE', '%' . $filter . '%')
+                    ->orWhere('name', 'LIKE', '%' . $filter . '%')
+                    ->orWhere('email', 'LIKE', '%' . $filter . '%')
+                    ->orWhere('phone_number', 'LIKE', '%' . $filter . '%')
+                    ->withSum('orders AS total_money_spent', 'total')->paginate($itemPerPage);
+            } else {
+                $users = User::whereNull('deleted')->withSum('orders AS total_money_spent', 'total')->paginate($itemPerPage);
+
+            }
+            return response()->json($users);
+        } catch(QueryException $e) {
+            return response(['message'=> 'Có lỗi đã xảy ra', 422]);
+        }
     }
 
     /**
@@ -36,7 +59,7 @@ class UserAdminController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -47,18 +70,19 @@ class UserAdminController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param string $uuid
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(string $uuid): JsonResponse
     {
-        //
+        $user = User::with('orders')->findOrFail($uuid);
+        return response()->json($user);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -69,8 +93,8 @@ class UserAdminController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -81,7 +105,7 @@ class UserAdminController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -143,5 +167,33 @@ class UserAdminController extends Controller
             'message' => 'Lấy thông tin người dùng đang đăng nhập thành công',
             'user' => $user
         ]);
+    }
+
+    /**
+     * Move a user to trash
+     *
+     * @param string $uuid
+     * @return Response
+     */
+    public function moveToTrash(string $uuid): Response
+    {
+        $user = User::findOrFail($uuid);
+        $user->update(['deleted' => true]);
+
+        return response(['message' => 'Đưa người dùng vào thùng rác thành công', 200]);
+    }
+
+    /**
+     * Restore a user, enabling they to continue using the site
+     * according to their roles
+     *
+     * @param string $uuid
+     * @return Response
+     */
+    public function restoreUser(string $uuid): Response {
+        $user = User::findOrFail($uuid);
+        $user->update(['deleted' => NULL]);
+
+        return response(['message' => 'Đưa người dùng vào thùng rác thành công', 200]);
     }
 }

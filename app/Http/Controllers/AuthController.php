@@ -87,6 +87,9 @@ class AuthController extends Controller
                 }
             }
 
+            if ($user->deleted === 1) {
+                return response(['message' => 'Tài khoản của bạn đã bị xóa.'], 401);
+            }
             // Assign token abilities according to user's role
 //            $authenticatedUser = auth()->user();
 
