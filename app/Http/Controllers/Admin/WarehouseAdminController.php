@@ -107,20 +107,20 @@ class WarehouseAdminController extends Controller
     }
 
 
-    /**
-     * Adding a product to warehouse in warehouse_product pivot table
-     *
-     * @param Request $request
-     * @param int $id
-     * @return Response
-     */
-    public function addProductToWarehouse(Request $request, int $id): Response
-    {
-        $request->validate(['product_id' => 'required|integer|numeric|min:1']);
-
-        Warehouse::find($id)->products()->attach($request->get('product_id'));
-        return response(['message' => "Thêm sản phẩm vào kho thành công"], 200);
-    }
+//    /**
+//     * Adding a product to warehouse in warehouse_product pivot table
+//     *
+//     * @param Request $request
+//     * @param int $id
+//     * @return Response
+//     */
+//    public function addProductToWarehouse(Request $request, int $id): Response
+//    {
+//        $request->validate(['product_id' => 'required|integer|numeric|min:1']);
+//
+//        Warehouse::find($id)->products()->attach($request->get('product_id'));
+//        return response(['message' => "Thêm sản phẩm vào kho thành công"], 200);
+//    }
 
     /**
      * Remove the specified resource from storage.

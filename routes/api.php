@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryAdminController;
+use App\Http\Controllers\Admin\DashboardAdminController;
 use App\Http\Controllers\Admin\MerchantAdminController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\OrderStatusAdminController;
@@ -42,7 +43,7 @@ use Illuminate\Support\Facades\Route;
 Route::resource('category', CategoryController::class)->only(['index', 'show']);
 Route::get('parent-categories', [CategoryController::class, 'indexParentCategories']);
 Route::get('/categories/products', [CategoryController::class, 'indexWithProducts']); // for the 'all' category
-Route::get('/category/{category_id}/product', [CategoryController::class, 'showWithProducts']); // for a specific category
+Route::get('/category/{category_id}/product/', [CategoryController::class, 'showWithProducts']); // for a specific category
 
 // Front page products
 Route::get('/product/show-front-page/{id}', [ProductController::class, 'showProductFrontPage']);
@@ -51,7 +52,7 @@ Route::get('/product/show-products-front-page', [ProductController::class, 'inde
 
 // Show product details in client
 Route::resource('product', ProductController::class)->only(['show']);
-
+Route::get('product-search/{keyword}', [ProductController::class, 'search']);
 // Payment methods
 Route::resource('payment-method', PaymentMethodController::class)->only(['index']);
 
@@ -175,7 +176,7 @@ Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator,customer
 // ADMIN ROUTES
 Route::prefix('admin')->group(function () {
     Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator']], function () {
-//    Route::get('/admin', [DashboardAdminController::class, 'index']);
+        Route::get('/', [DashboardAdminController::class, 'index']);
 
         /////////////////////////////////////////////////////////
         // PRODUCTS
@@ -243,6 +244,7 @@ Route::prefix('admin')->group(function () {
         /////////////////////////////////////////////////////////
         // CHART
         Route::post('/chart-analysis-order-count', [OrderAdminController::class, 'chartAnalysisOnOrderCount']);
+        Route::post('/chart-analysis-order-revenue', [OrderAdminController::class, 'chartAnalysisOnOrderRevenue']);
 
 //    Route::get('/admin/user-authorized', [UserAdminController::class, 'showLoggedInUserInfo']);
     });

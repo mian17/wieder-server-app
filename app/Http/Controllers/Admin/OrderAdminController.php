@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ChartAnalysisOnOrderCountRequest;
+use App\Http\Requests\ChartAnalysisBasedOnYearRequest;
 use App\Http\Requests\Order\EditOrderRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -139,7 +139,7 @@ class OrderAdminController extends Controller
     public function destroy(string $uuid): Response
     {
         $orderItems = OrderItem::where('order_uuid', $uuid)->get();
-        foreach($orderItems as $orderItem) {
+        foreach ($orderItems as $orderItem) {
             $orderItem->where('order_uuid', $uuid)->delete();
         }
         PaymentDetails::findOrFail($uuid)->delete();
@@ -152,15 +152,15 @@ class OrderAdminController extends Controller
      * Get number of orders based on requested year
      * from 2022
      *
-     * @param ChartAnalysisOnOrderCountRequest $request
+     * @param ChartAnalysisBasedOnYearRequest $request
      * @return JsonResponse
      */
-    public function chartAnalysisOnOrderCount(ChartAnalysisOnOrderCountRequest $request): JsonResponse
+    public function chartAnalysisOnOrderCount(ChartAnalysisBasedOnYearRequest $request): JsonResponse
     {
         $requestedYear = Carbon::create($request->get('year'));
         $ordersBasedOnMonth = [];
 
-        for($i = 1; $i <= 12; $i++){
+        for ($i = 1; $i <= 12; $i++) {
             $ordersBasedOnMonth[] = Order::whereYear('created_at', '=', $requestedYear)
                 ->whereMonth('created_at', $i)
                 ->count();
@@ -168,7 +168,32 @@ class OrderAdminController extends Controller
         return response()->json($ordersBasedOnMonth);
     }
 
-//    public function
+    /**
+     * Get revenue from orders
+     *
+     * @param ChartAnalysisBasedOnYearRequest $request
+     * @return JsonResponse
+     */
+    public function chartAnalysisOnOrderRevenue(ChartAnalysisBasedOnYearRequest $request): JsonResponse
+    {
+        $requestedYear = Carbon::create($request->get('year'));
+        $revenueBasedOnMonth = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $ordersExistInTheMonth = Order::whereYear('created_at', '=', $requestedYear)
+                ->whereMonth('created_at', $i)->exists();
+
+            if ($ordersExistInTheMonth) {
+                $revenueBasedOnMonth[] = Order::whereYear('created_at', '=', $requestedYear)
+                    ->whereMonth('created_at', $i)->sum('total');
+            } else {
+                $revenueBasedOnMonth[] = 0;
+            }
+        }
+        return response()->json($revenueBasedOnMonth);
+    }
+
+
 
 
 }

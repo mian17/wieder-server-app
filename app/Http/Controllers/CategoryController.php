@@ -87,9 +87,10 @@ class CategoryController extends Controller
      * Display a specific category and its products.
      *
      * @param int $category_id
+     * @param Request $request
      * @return Response
      */
-    public function showWithProducts(int $category_id): Response
+    public function showWithProducts(int $category_id, Request $request): Response
     {
         $data = Category::with(['getAvailableProducts.kinds', 'childrenRecursive.getAvailableProducts.kinds'])
             ->where('id', $category_id)
@@ -128,7 +129,24 @@ class CategoryController extends Controller
             }
         }
 
+        $filter = request('filter');
+        if ($filter) {
+            if ($filter === 'asc') {
+                usort($products, static function ($p1, $p2) {
+                    return $p1['price'] > $p2['price'] ? 1 : -1;
+                });
+            } else if ($filter === 'desc') {
+                usort($products, static function ($p1, $p2) {
+                    return $p1['price'] < $p2['price'] ? 1 : -1;
+                });
+            }
+        }
+
         $pagination = $this->paginate($products);
+        if ($filter) {
+            $pagination->appends(['filter' => $filter]);
+        }
+
         return response([
             'message' => "Hiển thị sản phẩm cho danh mục thành công",
             'pagination' => $pagination,

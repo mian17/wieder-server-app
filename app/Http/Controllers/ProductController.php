@@ -10,17 +10,28 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Console\Input\Input;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * TODO: SEARCH FUNCTIONALITY
      * @return JsonResponse
      */
     public function index(): JsonResponse
     {
-        return response()->json(['products' => Product::paginate(50)]);
+//        $searchedProducts = Product::where('name', 'LIKE', '%' . $request->get('search') . '%')->limit(10)->get();
+//        return response()->json($searchedProducts);
+
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        $searchedProducts = Product::with('kinds')
+            ->where('name', 'LIKE', '%' . $request->route('keyword') . '%')
+            ->limit(10)
+            ->get();
+        return response()->json($searchedProducts);
     }
 
     /**
