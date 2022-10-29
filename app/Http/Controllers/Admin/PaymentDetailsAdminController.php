@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderPaymentDetailsStatusChanged;
+use App\Mail\OrderReceived;
+use App\Models\Order;
 use App\Models\PaymentDetails;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentDetailsAdminController extends Controller
 {
@@ -72,8 +76,10 @@ class PaymentDetailsAdminController extends Controller
     public function update(Request $request, string $uuid): Response
     {
         $editingPaymentDetails = PaymentDetails::findOrFail($uuid);
-
+        $editingOrder = Order::findOrFail($uuid);
         $statusVal = $request->get('status');
+
+        Mail::send(new OrderPaymentDetailsStatusChanged($editingOrder, $editingPaymentDetails->status, $statusVal));
 
         if ($statusVal === 'Chưa thanh toán' || $statusVal === 'Đã thanh toán') {
             $editingPaymentDetails->update(['status' => $statusVal]);

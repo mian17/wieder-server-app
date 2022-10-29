@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\CreateChatRoom;
+use App\Events\MessageSent;
 use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\DashboardAdminController;
 use App\Http\Controllers\Admin\MerchantAdminController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
+use App\Models\Order;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -170,6 +173,22 @@ Route::group(['middleware' => ['auth:sanctum', 'ability:admin,moderator,customer
 
     Route::resource('cart', CartItemController::class);
     Route::get('/user-cart', [CartItemController::class, 'getCartItemsFromAuthorizedUser']);
+
+
+    ////////////////////////////////////////////////////////////////////////
+    // CHAT
+    Route::post('/create-chat-room', function (Request $request) {
+        event(new CreateChatRoom($request->get('uuid')));
+    });
+    Route::post('/send-message', function (Request $request) {
+        event(new MessageSent($request->get('content'), $request->get('uuid')));
+
+//    return 'hi';
+    });
+    Route::post('/admin-send-message', function (Request $request) {
+        event(new \App\Events\AdminMessageSent($request->get('content'), $request->get('uuid'), $request->get('admin_uuid')));
+
+    });
 });
 
 /////////////////////////////////////////////////////////
@@ -251,3 +270,15 @@ Route::prefix('admin')->group(function () {
 });
 
 
+////////////////////////////////////////////////////////
+/// Blade view template test
+//Route::get('/test-blade', function () {
+//    return view('emails.order_received');
+//});
+//Route::get('/test-result', function () {
+////    return view('emails.order_received');
+//    $order = Order::first();
+//    return $order->with('orderItems.kind')
+//        ->where('order.uuid', '=', '0350ced9-d577-4c90-9bd6-f1a09ffa4b7b')
+//        ->get();
+//});

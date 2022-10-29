@@ -15,7 +15,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\File;
 //use Illuminate\Support\Facades\Request;
 
 class UserController extends Controller
@@ -136,6 +136,12 @@ class UserController extends Controller
 
         $userUuid = auth()->user()->uuid;
         $editingUser = User::findOrFail($userUuid);
+
+        // user's avatar is not default then delete it
+        if ($editingUser->avatar !== "/img/avatar/default-avatar.png") {
+            File::delete(public_path((string)$editingUser->avatar));
+        }
+
         $editingUser->update(['avatar' => $attributes['avatar_url']]);
 
         return response(['message' => "Đổi hình ảnh người dùng thành công"]);

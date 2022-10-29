@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Order\StoreOrderRequest;
+use App\Mail\OrderReceived;
+use App\Mail\OrderStatusChanged;
 use App\Models\CartItem;
 use App\Models\Discount;
 use App\Models\Kind;
@@ -19,6 +21,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -186,10 +189,13 @@ class OrderController extends Controller
                         $kindToUpdateQuantity->update(['quantity' => $kindToUpdateQuantity->value('quantity') - $item['quantity']]);
                     }
 
+
                     if (auth('sanctum')->user()) {
                         $user_uuid = auth('sanctum')->user()->uuid;
                         CartItem::where('user_uuid', $user_uuid)->delete();
                     }
+
+                    Mail::send(new OrderReceived($createdOrder));
                 }
                 return response(['message' => 'Tạo đơn hàng mới và thêm chi tiết đơn hàng thành công'], 200);
             }
@@ -252,7 +258,7 @@ class OrderController extends Controller
                         }
                         break;
                     case 5:
-                        echo "Sẽ sửa đổi đơn hàng sang trạng thái hủy";
+
                         $conditionToChangeToOrderCanceled =
                             $editingOrder->status_id === 1
                             || $editingOrder->status_id === 2
@@ -274,7 +280,6 @@ class OrderController extends Controller
                         }
                         break;
                     case 6:
-                        echo "Sẽ sửa đổi đơn hàng sang trạng thái đổi trả/hoàn tiền";
                         $conditionToChangeToOrderReturnOrRefund = $editingOrder->status_id === 4;
                         if ($conditionToChangeToOrderReturnOrRefund) {
                             $editingOrder->update(['status_id' => 6]);
@@ -350,6 +355,8 @@ class OrderController extends Controller
                 $user_uuid = auth('sanctum')->user()->uuid;
                 CartItem::where('user_uuid', $user_uuid)->delete();
             }
+
+            Mail::send(new OrderReceived($createdOrder));
         }
         return response(['message' => 'Tạo đơn hàng mới và thêm chi tiết đơn hàng thành công'], 200);
     }

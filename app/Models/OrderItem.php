@@ -56,5 +56,8 @@ class OrderItem extends Model
         'updated_at' => 'datetime',
     ];
 
+    public function kind() {
+        return $this->hasOne(Kind::class, 'id', 'model_id');
+    }
 
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Ramsey\Uuid\Uuid;
 
 class Order extends Model
@@ -25,7 +26,7 @@ class Order extends Model
         return 'uuid';
     }
 
-    protected $primaryKey='uuid';
+    protected $primaryKey = 'uuid';
 
     /**
      * Since ID type is uuid, to prevent Laravel from decrypting the id
@@ -112,7 +113,14 @@ class Order extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, );
+        return $this->belongsTo(User::class,);
+    }
+
+    public function kinds($uuid)
+    {
+        return $this->with('orderItems.kind')
+            ->where('order.uuid', '=', $uuid)
+            ->get();
     }
 
 }

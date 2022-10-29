@@ -288,7 +288,7 @@ class ProductAdminController extends Controller
 
                 }
             }
-            return response(["message' => 'Cập nhật thông tin cho sản phẩm có $id thành công"], 200);
+            return response(['message' => "Cập nhật thông tin cho sản phẩm có $id thành công"], 200);
         } catch (QueryException $e) {
             return response(['message' => "Tạo sản phẩm mới không thành công", "error" => $e], 401);
         } catch (JsonException $e) {

@@ -137,14 +137,19 @@ class UserAdminController extends Controller
             // Assign token abilities according to user's role
             $authenticatedUser = auth()->user();
 
-            $roles = $authenticatedUser->roles->pluck('role_name')->all();
-            $token = $authenticatedUser->createToken('user-token', $roles)->plainTextToken;
-            $response = [
-                'user' => $authenticatedUser,
-                'token' => $token,
-            ];
+            if ($authenticatedUser->isAdmin()) {
+                $roles = $authenticatedUser->roles->pluck('role_name')->all();
+                $token = $authenticatedUser->createToken('user-token', $roles)->plainTextToken;
+                $response = [
+                    'user' => $authenticatedUser,
+                    'token' => $token,
+                ];
 
-            return response($response, 201);
+
+                return response($response, 201);
+            }
+                return response(['message' => 'Bạn không có quyền truy cập trang này.']);
+
 
 
         } catch (QueryException $e) {

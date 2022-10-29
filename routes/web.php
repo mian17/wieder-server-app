@@ -36,3 +36,11 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/admin/login', [UserAdminController::class, 'login'])
     ->middleware(EnsureAdminRole::class);
 
+Route::get('/email/verify/success', function () {
+    return view('auth.verify-email-successfully');
+});
+Route::get('/email/verify/already-success', function () {
+    return view('auth.verify-email-already');
+});
+
+

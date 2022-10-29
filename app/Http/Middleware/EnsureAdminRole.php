@@ -31,6 +31,6 @@ class EnsureAdminRole
         if (in_array($ADMIN_ROLE, $loggedInUserRoles, true) || in_array($MODERATOR_ROLE, $loggedInUserRoles, true)) {
             return $next($request);
         }
-        return response('Bạn không có quyền truy cập trang này', 401);
+        return response(['message' =>'Bạn không có quyền truy cập trang này'], 401);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ChartAnalysisBasedOnYearRequest;
 use App\Http\Requests\Order\EditOrderRequest;
+use App\Mail\OrderStatusChanged;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PaymentDetails;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class OrderAdminController extends Controller
 {
@@ -57,7 +59,7 @@ class OrderAdminController extends Controller
      * @param string $uuid
      * @return JsonResponse
      */
-    public function show($uuid)
+    public function show(string $uuid): JsonResponse
     {
         $order = DB::table('order')
             ->where('order.uuid', $uuid)
@@ -110,21 +112,25 @@ class OrderAdminController extends Controller
     public function updateOrderStatus(Request $request, string $uuid): Response
     {
         $editingOrder = Order::findOrFail($uuid);
-        $requestStatus = $request->get('status_id');
+        $oldStatusId = $editingOrder->status_id;
+        $requestStatusId = $request->get('status_id');
+
 
         switch ($editingOrder->paymentDetails->status) {
             case "Chưa thanh toán":
-                if ($requestStatus === "4" || $requestStatus === "6") {
+                if ($requestStatusId === "4" || $requestStatusId === "6") {
                     return response(['message' => 'Đơn hàng chưa được thanh toán.'], 422);
                 }
-                $editingOrder->update(['status_id' => $requestStatus]);
+                $editingOrder->update(['status_id' => $requestStatusId]);
                 break;
             case 'Đã thanh toán':
-                $editingOrder->update(['status_id' => $requestStatus]);
+                $editingOrder->update(['status_id' => $requestStatusId]);
                 break;
             default:
                 return response(['message' => "Có lỗi xảy ra"], 422);
         }
+        Mail::send(new OrderStatusChanged($editingOrder, $oldStatusId, $requestStatusId));
+
 
         return response(['message' => "Đã cập nhật trạng thái mới cho đơn hàng $uuid thành công"], 200);
     }
