@@ -27,31 +27,15 @@ class ProductAdminController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-//        return response()->json(['products' => Product::paginate(50)]);
+        $filter = $request->get('filter');
 
-//        $products = Product::with('kinds')->get();
+        $products = Product::whereIn('status', ['Hiển thị', 'Ẩn'])
+            ->where('name', 'LIKE', '%' . $filter . '%')
+//            ->orWhere('SKU', 'LIKE', '%' . $filter . '%')
+            ->with(['category', 'kinds', 'merchants', 'warehouses'])
+            ->paginate(10);
 
-//        $products = DB::table('product')
-//            ->join('category', 'product.category_id', '=', 'category.id')
-//            ->join('model', 'product.id', '=', 'model.product_id')
-//            ->distinct()
-//            ->get();
-
-
-        $products = Product::with(['category', 'kinds', 'merchants', 'warehouses'])
-            ->where('status', '=', 'Hiển thị')
-            ->orWhere('status', '=', 'Ẩn');
-
-        if ($request->get('filter')) {
-            $products
-                ->where('product.name', 'LIKE', '%' . $request->get('filter') . '%')
-//                ->orWhere('product.SKU', 'LIKE', '%' . $request->get('filter') . '%')
-//                ->orWhere('category.name', 'LIKE', '%' . $request->get('filter') . '%')
-                ->limit(10);
-        }
-
-
-        return response()->json($products->paginate(10));
+        return response()->json($products);
     }
 
 
@@ -69,7 +53,7 @@ class ProductAdminController extends Controller
     /**
      * Get models related to the selected product
      *
-     * @param int  $productId
+     * @param int $productId
      * @return JsonResponse
      */
     public function modelIndexForImage(int $productId): JsonResponse
@@ -96,11 +80,11 @@ class ProductAdminController extends Controller
 
         if ($editingProduct && $editingModel) {
             $existingImages = $editingModel->images;
-            foreach($existingImages as $image) {
+            foreach ($existingImages as $image) {
                 $image->delete();
             }
 
-            foreach($requestImages as $requestImage) {
+            foreach ($requestImages as $requestImage) {
                 $movedPath = '/' . uploadFile($requestImage, 'img/product');
                 KindImage::create(['model_id' => $modelId, 'url' => $movedPath]);
             }
@@ -207,7 +191,9 @@ class ProductAdminController extends Controller
     {
         try {
             $attributes = $request->except('merchant_id', 'warehouse_id', 'models');
-
+            if ($attributes['price'] > $attributes['cost_price']) {
+                return response(['message' => 'Đơn giá phải bé hơn giá vốn'], 422);
+            }
             $editingProduct = Product::find($id);
 
             $editingProduct->update($attributes);

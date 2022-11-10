@@ -55,6 +55,7 @@ Route::get('/product/show-products-front-page', [ProductController::class, 'inde
 
 // Show product details in client
 Route::resource('product', ProductController::class)->only(['show']);
+ROute::get('products-one-may-like', [ProductController::class, 'productsOneMayLike']);
 Route::get('product-search/{keyword}', [ProductController::class, 'search']);
 // Payment methods
 Route::resource('payment-method', PaymentMethodController::class)->only(['index']);
@@ -269,16 +270,3 @@ Route::prefix('admin')->group(function () {
     });
 });
 
-
-////////////////////////////////////////////////////////
-/// Blade view template test
-//Route::get('/test-blade', function () {
-//    return view('emails.order_received');
-//});
-//Route::get('/test-result', function () {
-////    return view('emails.order_received');
-//    $order = Order::first();
-//    return $order->with('orderItems.kind')
-//        ->where('order.uuid', '=', '0350ced9-d577-4c90-9bd6-f1a09ffa4b7b')
-//        ->get();
-//});

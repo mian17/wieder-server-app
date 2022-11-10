@@ -94,7 +94,15 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-
+    /**
+     * The product belongs to many merchants
+     *
+     *  @return HasMany
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class, 'product_id', 'id');
+    }
 
 
 }

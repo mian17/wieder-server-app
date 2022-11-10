@@ -54,9 +54,9 @@ class UploadImagesForModelRequest extends FormRequest
             'images.array' => 'Sai dữ liệu',
 
             'images.*.required' => 'Bạn cần thêm hình',
-            'images.*.mimes' => 'Hình của bạn cần có định dạng: png, jpg, jpeg',
-            'images.*.dimensions' => 'Hình của bạn cần phải đúng tỉ lệ 1:1',
-            'images.*.max' => 'Hình của bạn cần phải ít hơn 2Mb',
+            'images.*.mimes' => 'Hình #:position của bạn cần có định dạng: png, jpg, jpeg',
+            'images.*.dimensions' => 'Hình #:position của bạn cần phải đúng tỉ lệ 1:1',
+            'images.*.max' => 'Hình #:position của bạn cần phải ít hơn 2Mb',
 
 
 

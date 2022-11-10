@@ -56,9 +56,9 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
 //        Product::factory(2000)->create(); //
 
-        $this->call([
-            CartItemSeeder::class,
-        ]);
+//        $this->call([
+//            CartItemSeeder::class,
+//        ]);
 
         $admin = User::where('username', 'admin')->first();
 

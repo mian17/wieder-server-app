@@ -23,11 +23,14 @@ Email người nhận: {{$order->receiver_email}}<br>
 | -------------------------- |:------------------------:| ---------------------:|
 @foreach($orderItems as $orderItem)
 @php
-    $realTotal += $orderItem->price;
+    $realTotal += $orderItem->price * $orderItem->quantity;
 @endphp
 | {{$orderItem->kind->name}} | {{$orderItem->quantity}} | {{number_format($orderItem->price, 0, '', ',')}} ₫ |
 @endforeach
-@if ($realTotal > $order->total) |   |   | Giảm giá: {{number_format($realTotal - (int)$order->total, 0, '', ',')}} ₫ | @endif <br/>
+@if ($realTotal > $order->total)
+    |   |   | Tạm tính: {{number_format($realTotal)}} ₫ |<br />
+    |   |   | Giảm giá: {{number_format($realTotal - (int)$order->total, 0, '', ',')}} ₫ |
+@endif <br/>
 |   |   | Tổng cộng: {{number_format($order->total, 0, '', ',')}} ₫ |
 @endcomponent
 @endcomponent

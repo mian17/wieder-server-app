@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Product\EditProductRequest;
 use App\Http\Requests\Product\StoreProductRequest;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -29,6 +30,7 @@ class ProductController extends Controller
     {
         $searchedProducts = Product::with('kinds')
             ->where('name', 'LIKE', '%' . $request->route('keyword') . '%')
+            ->whereNotIn('status', [-1, "Ẩn"])
             ->limit(10)
             ->get();
         return response()->json($searchedProducts);
@@ -41,7 +43,10 @@ class ProductController extends Controller
      */
     public function indexProductsFrontPage(): Response
     {
-        $products = Product::with('kinds')->limit(11)->get();
+        $products = Product::with(['kinds'])
+            ->whereNotIn('status', [-1, "Ẩn"])
+            ->limit(11)
+            ->get();
         return response([
             'message' => 'Lấy các sản phẩm cho trang chủ thành công',
             'products' => $products
@@ -99,7 +104,9 @@ class ProductController extends Controller
 
         // 3rd implementation
 
-        $desiredProduct = Product::find($id)->load(['kinds', 'kinds.images']);
+        $desiredProduct = Product::find($id)
+            ->load(['kinds', 'kinds.images']);
+
         return response([
             'message' => "Hiển thị sản phẩm thành công",
             "product" => $desiredProduct
@@ -115,6 +122,7 @@ class ProductController extends Controller
     public function showProductFrontPage(int $id): Response
     {
         $desiredProduct = Product::with(['kinds'])
+            ->whereNotIn('status', [-1, "Ẩn"])
             ->where('id', $id)
             ->get();
         return response([
@@ -151,8 +159,36 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        // TODO: DETACH
-        Product::find($id)->delete();
-        return response(['message' => "Đã xóa nhà bán thành công"], 200);
+//        //
+//        Product::find($id)->delete();
+//        return response(['message' => "Đã xóa nhà bán thành công"], 200);
+    }
+
+    public function productsOneMayLike()
+    {
+        if (OrderItem::all()->count() < 10) {
+            $products = Product::with('kinds')
+                ->whereNotIn('status', [-1, "Ẩn"])
+                ->inRandomOrder()
+                ->limit(3)
+                ->get();
+        } else {
+            $productsIdOneMayLike = DB::table('order_item')
+                ->select('product_id', DB::raw('SUM(quantity) as sum_quantity'))
+                ->distinct()
+                ->join('product', 'order_item.product_id', '=', 'product.id')
+                ->whereNotIn('product.status', [-1, "Ẩn"])
+                ->groupBy('product_id')
+                ->orderByDESC('sum_quantity')
+                ->limit(3)
+                ->pluck('product_id');
+
+            $products = Product::whereIn('id', $productsIdOneMayLike)
+                ->with('kinds')->limit(3)->get();
+        }
+        return response([
+            'message' => 'Lấy các sản phẩm cho trang chủ thành công',
+            'products' => $products,
+        ], 200);
     }
 }

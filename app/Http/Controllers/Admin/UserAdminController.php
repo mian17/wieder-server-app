@@ -185,7 +185,7 @@ class UserAdminController extends Controller
         $user = User::findOrFail($uuid);
         $user->update(['deleted' => true]);
 
-        return response(['message' => 'Đưa người dùng vào thùng rác thành công', 200]);
+        return response(['message' => 'Xóa người dùng thành công', 200]);
     }
 
     /**

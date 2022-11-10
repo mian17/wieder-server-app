@@ -54,7 +54,7 @@ class WarehouseAdminController extends Controller
      */
     public function indexProduct(): JsonResponse
     {
-        return response()->json(Warehouse::all());
+        return response()->json(Warehouse::whereNull('deleted')->get());
     }
 
     /**

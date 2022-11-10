@@ -52,7 +52,7 @@ class MerchantAdminController extends Controller
      */
     public function indexProduct(): JsonResponse
     {
-       return response()->json(Merchant::all());
+       return response()->json(Merchant::whereNull('deleted')->get());
     }
 
     /**
