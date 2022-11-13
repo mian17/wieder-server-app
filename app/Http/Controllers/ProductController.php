@@ -15,22 +15,30 @@ use Symfony\Component\Console\Input\Input;
 
 class ProductController extends Controller
 {
+//    /**
+//     * Display a listing of the resource.
+//     * @return JsonResponse
+//     */
+//    public function index(): JsonResponse
+//    {
+////        $searchedProducts = Product::where('name', 'LIKE', '%' . $request->get('search') . '%')->limit(10)->get();
+////        return response()->json($searchedProducts);
+//
+//    }
+
+
     /**
-     * Display a listing of the resource.
+     * Return search results
+     * Expected behavior: only return products which neither are not hidden nor not in trash state
+     *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index(): JsonResponse
-    {
-//        $searchedProducts = Product::where('name', 'LIKE', '%' . $request->get('search') . '%')->limit(10)->get();
-//        return response()->json($searchedProducts);
-
-    }
-
     public function search(Request $request): JsonResponse
     {
         $searchedProducts = Product::with('kinds')
             ->where('name', 'LIKE', '%' . $request->route('keyword') . '%')
-            ->whereNotIn('status', [-1, "Ẩn"])
+            ->notHiddenOrMovedToTrashForClientSite()
             ->limit(10)
             ->get();
         return response()->json($searchedProducts);
@@ -38,13 +46,14 @@ class ProductController extends Controller
 
     /**
      * Display a listing for front page
+     * Expected behavior: only return products which neither are not hidden nor not in trash state
      *
      * @return Response
      */
     public function indexProductsFrontPage(): Response
     {
-        $products = Product::with(['kinds'])
-            ->whereNotIn('status', [-1, "Ẩn"])
+        $products = Product::notHiddenOrMovedToTrashForClientSite()
+            ->with(['kinds'])
             ->limit(11)
             ->get();
         return response([
@@ -78,6 +87,9 @@ class ProductController extends Controller
 
     /**
      * Display the specified resource with its kinds.
+     * Expected behavior: only return products which is not hidden
+     * For trash items, it should return but with the button add to cart button disabled.
+     * or signify to the user that the product is not available to purchase.
      *
      * @param int $id
      * @return Response
@@ -104,8 +116,7 @@ class ProductController extends Controller
 
         // 3rd implementation
 
-        $desiredProduct = Product::find($id)
-            ->load(['kinds', 'kinds.images']);
+        $desiredProduct = Product::notHidden()->findOrFail($id)->load(['kinds', 'kinds.images']);
 
         return response([
             'message' => "Hiển thị sản phẩm thành công",
@@ -113,23 +124,23 @@ class ProductController extends Controller
         ], 200);
     }
 
-    /**
-     * Show product for front page
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function showProductFrontPage(int $id): Response
-    {
-        $desiredProduct = Product::with(['kinds'])
-            ->whereNotIn('status', [-1, "Ẩn"])
-            ->where('id', $id)
-            ->get();
-        return response([
-            'message' => "Hiển thị sản phẩm thành công",
-            "product" => $desiredProduct
-        ], 200);
-    }
+//    /**
+//     * Show product for front page
+//     * NOTE: THIS FUNCTION IS RETIRED
+//     * @param int $id
+//     * @return Response
+//     */
+//    public function showProductFrontPage(int $id): Response
+//    {
+//        $desiredProduct = Product::notHidden()
+//            ->with(['kinds'])
+//            ->where('id', $id)
+//            ->get();
+//        return response([
+//            'message' => "Hiển thị sản phẩm thành công",
+//            "product" => $desiredProduct
+//        ], 200);
+//    }
 
 //    /**
 //     * Update the specified resource in storage.
@@ -167,8 +178,8 @@ class ProductController extends Controller
     public function productsOneMayLike()
     {
         if (OrderItem::all()->count() < 10) {
-            $products = Product::with('kinds')
-                ->whereNotIn('status', [-1, "Ẩn"])
+            $products = Product::notHiddenOrMovedToTrashForClientSite()
+                ->with('kinds')
                 ->inRandomOrder()
                 ->limit(3)
                 ->get();
@@ -189,6 +200,22 @@ class ProductController extends Controller
         return response([
             'message' => 'Lấy các sản phẩm cho trang chủ thành công',
             'products' => $products,
+        ], 200);
+    }
+
+    /**
+     * Show a random spotlight product for front page
+     *
+     * @return Response
+     */
+    public function showRandomSpotlightProduct(): Response
+    {
+        $desiredProduct = Product::inRandomOrder()->notHiddenOrMovedToTrashForClientSite()
+            ->with(['kinds'])
+            ->first();
+        return response([
+            'message' => "Hiển thị sản phẩm thành công",
+            "product" => $desiredProduct
         ], 200);
     }
 }

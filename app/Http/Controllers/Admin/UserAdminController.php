@@ -137,7 +137,7 @@ class UserAdminController extends Controller
             // Assign token abilities according to user's role
             $authenticatedUser = auth()->user();
 
-            if ($authenticatedUser->isAdmin()) {
+            if ($authenticatedUser->isAdminOrModerator()) {
                 $roles = $authenticatedUser->roles->pluck('role_name')->all();
                 $token = $authenticatedUser->createToken('user-token', $roles)->plainTextToken;
                 $response = [
@@ -183,9 +183,12 @@ class UserAdminController extends Controller
     public function moveToTrash(string $uuid): Response
     {
         $user = User::findOrFail($uuid);
+        if ($user->isAdmin()) {
+            return response(['message' => 'Đây là người dùng admin, không thể xóa người dùng này.'], 401);
+        }
         $user->update(['deleted' => true]);
 
-        return response(['message' => 'Xóa người dùng thành công', 200]);
+        return response(['message' => 'Xóa người dùng thành công'], 200);
     }
 
     /**

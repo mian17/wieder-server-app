@@ -75,7 +75,6 @@ class UserController extends Controller
         $editingUser = User::findOrFail($id);
         $editingUser->update($attributes);
 
-
         return response()->json(['message' => 'Đã nhận được yêu cầu update và chỉnh sửa thông tin user này thành công']);
     }
 

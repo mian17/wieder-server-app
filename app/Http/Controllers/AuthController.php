@@ -30,6 +30,8 @@ class AuthController extends Controller
             $attributes = $request->all();
             User::create($attributes);
 
+            // STATIS ROLE ASSIGN IN CASE OF ABUSSING FROM CLIENT
+            $attributes['role_id'] = 3;
             $desiredRole = UserRole::findOrFail($attributes['role_id']);
 
             $newlyCreatedUser = User::whereEmail($request->input('email'))->first();

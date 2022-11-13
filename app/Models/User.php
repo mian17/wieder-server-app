@@ -192,10 +192,21 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-    public function isAdmin()
+    public function isAdminOrModerator()
     {
         foreach ($this->roles()->get() as $role) {
             if ($role->role_name === 'admin' || $role->role_name === "moderator") {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isAdmin()
+    {
+        foreach ($this->roles()->get() as $role) {
+            if ($role->role_name === 'admin') {
                 return true;
             }
         }

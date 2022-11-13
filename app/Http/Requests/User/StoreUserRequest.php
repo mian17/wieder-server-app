@@ -30,7 +30,8 @@ class StoreUserRequest extends FormRequest
             'email' => 'required|email|max:255|unique:user,email',
             'phone_number' => [
                 'required',
-                'regex:/^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/',
+//                'regex:/^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/',
+                'regex:/(((\+|)84)|0)(3|5|7|8|9)+([0-9]{8})\b/',
                 'max:15',
                 'unique:user,phone_number'
             ],

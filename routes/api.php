@@ -49,7 +49,8 @@ Route::get('/categories/products', [CategoryController::class, 'indexWithProduct
 Route::get('/category/{category_id}/product/', [CategoryController::class, 'showWithProducts']); // for a specific category
 
 // Front page products
-Route::get('/product/show-front-page/{id}', [ProductController::class, 'showProductFrontPage']);
+Route::get('/product/show-front-page/{id}', [ProductController::class, 'showProductFrontPage']); // FUNCTION IS RETIRED
+Route::get('/product/show-random-spotlight-product', [ProductController::class, 'showRandomSpotlightProduct']);
 Route::get('/product/show-products-front-page', [ProductController::class, 'indexProductsFrontPage']);
 
 

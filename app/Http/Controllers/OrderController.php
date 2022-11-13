@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Mail\OrderReceived;
 use App\Mail\OrderStatusChanged;
+use App\Mail\SignifyNewOrderToAdmin;
 use App\Models\CartItem;
 use App\Models\Discount;
 use App\Models\Kind;
@@ -21,6 +22,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
@@ -138,14 +140,35 @@ class OrderController extends Controller
     {
         // Payment Details status 1: Chưa thanh toán
         // Payment Details status 2: Đã thanh tón
-        DB::transaction(function () use ($request) {
 
+        $quantityIsNotPassable = false;
+        $kindsToCheckQuantity = [];
+        DB::transaction(function () use ($request, &$quantityIsNotPassable, &$kindsToCheckQuantity) {
+            // Quantity check
+            foreach ($request->get('cart') as $item) {
+//                $kindsToCheckQuantity = Kind::where('id', $item['model_id']);
+                $checkingItem = Kind::where('id', $item['model_id']);
+                if ($checkingItem->value('quantity') - $item['quantity'] < 0) {
+                    $quantityIsNotPassable = true;
+                    $kindsToCheckQuantity[] = Kind::where('id', $item['model_id'])->first();
+
+                }
+            }
+
+            if ($quantityIsNotPassable) {
+                return;
+            }
+
+
+            // User is unregistered, proceeds to createOrder function
             if (!$request->filled(['discount_code', 'discount_percent'])) {
                 return $this->createOrder($request);
             }
 
             $orderAttributes = $request->except('cart');
             $orderAttributes['status_id'] = Status::pluck('id')->first();
+
+
 
             if (auth('sanctum')->user()) {
                 $user_uuid = auth('sanctum')->user()->uuid;
@@ -196,6 +219,7 @@ class OrderController extends Controller
                     }
 
                     Mail::send(new OrderReceived($createdOrder));
+                    Mail::send(new SignifyNewOrderToAdmin($createdOrder));
                 }
                 return response(['message' => 'Tạo đơn hàng mới và thêm chi tiết đơn hàng thành công'], 200);
             }
@@ -203,8 +227,21 @@ class OrderController extends Controller
             return response(['message' => "Tạo đơn hàng thành công", 200]);
         });
 
-        return response(['message' => 'Transaction finished without any errors'], 200);
 
+
+        if (!$quantityIsNotPassable) {
+            return response(['message' => 'Transaction finished without any errors'], 200);
+        }
+
+        ////////////////////////////////////////////////////
+        /// Quantity Errors
+        $errorMessages = [];
+        foreach($kindsToCheckQuantity as $kindThatHasQuantityError) {
+            $errorMessages[] = "Sản phẩm $kindThatHasQuantityError->name chỉ còn $kindThatHasQuantityError->quantity số lượng.";
+        }
+
+
+        return response(['error_messages' => $errorMessages], 500);
     }
 
     /**
@@ -258,7 +295,6 @@ class OrderController extends Controller
                         }
                         break;
                     case 5:
-
                         $conditionToChangeToOrderCanceled =
                             $editingOrder->status_id === 1
                             || $editingOrder->status_id === 2
@@ -357,6 +393,7 @@ class OrderController extends Controller
             }
 
             Mail::send(new OrderReceived($createdOrder));
+            Mail::send(new SignifyNewOrderToAdmin($createdOrder));
         }
         return response(['message' => 'Tạo đơn hàng mới và thêm chi tiết đơn hàng thành công'], 200);
     }

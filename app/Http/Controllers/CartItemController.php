@@ -86,7 +86,7 @@ class CartItemController extends Controller
         $request->validate([
             'quantity' => 'required|integer|numeric',
         ]);
-        echo '<pre>', print_r($request->all()), '</pre>';
+//        echo '<pre>', print_r($request->all()), '</pre>';
 
         $cartItem = CartItem::where('user_uuid', $user_uuid)
             ->where('id', $id)
