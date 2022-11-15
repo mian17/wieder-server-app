@@ -16,9 +16,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use JsonException;
+use Throwable;
 
 class ProductAdminController extends Controller
 {
+    private int $STATUS_FOR_MOVED_PRODUCT_TO_TRASH = -1;
+
     /**
      * Display a listing of the resource.
      *
@@ -293,6 +296,11 @@ class ProductAdminController extends Controller
         if (auth()->user()->tokenCan('admin')) {
             $productReadyForDeletion = Product::find($id);
 
+            if ($productReadyForDeletion->orderItems->count() > 0) {
+                return response(['message' => 'Sản phẩm này đã có trong giỏ hàng của khách, vì thế bạn không được xóa sản phẩm này'], 422);
+            }
+
+
             // Status code in trash, since status column is varchar, strict comparison as string is necessary
             if ($productReadyForDeletion && $productReadyForDeletion->status === "-1") {
                 $relatedCarts = CartItem::whereProductId($id)->get();
@@ -306,7 +314,6 @@ class ProductAdminController extends Controller
                     foreach ($kind->images as $image) {
                         $image->delete();
                     }
-
                     $kind->delete();
                 }
 
@@ -318,7 +325,6 @@ class ProductAdminController extends Controller
                 $productReadyForDeletion->delete();
             }
             return response(['message' => 'Xóa sản phẩm vĩnh viễn thành công'], 200);
-
         }
 
 //        Product::find($id)->delete();
@@ -375,4 +381,106 @@ class ProductAdminController extends Controller
         return response()->json($productsThatAreInTrash->paginate(10));
     }
 
+    public function moveMultipleItemsToTrash(Request $request): Response
+    {
+        $productIdsToMoveToTrash = $request->get('move_to_trash_item_ids');
+        $editingProducts = Product::whereIn('id', $productIdsToMoveToTrash);
+        $editingProducts->update(['status' => $this->STATUS_FOR_MOVED_PRODUCT_TO_TRASH]);
+        return response(['items' => $editingProducts], 200);
+
+    }
+
+    public function restoreItems(Request $request): Response
+    {
+        $productIdsToMoveToTrash = $request->get('restore_item_ids');
+        $editingProducts = Product::whereIn('id', $productIdsToMoveToTrash);
+        $editingProducts->update(['status' => "Ẩn"]);
+        return response(['message' => "Các sản phẩm đã được khôi phục và chuyển sang trạng thái Ẩn"], 200);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function directlyRemoveItemsWhichAreInTrash(Request $request): Response
+    {
+        $unableToDeleteProducts = [];
+        $productIdsInTrash = $request->get('directly_remove_item_ids');
+
+        DB::beginTransaction();
+//        $statusCode = DB::transaction(function () use ($productIdsInTrash, &$unableToDeleteProducts) {
+        if (auth()->user()->tokenCan('admin')) {
+            $productsReadyForDeletion = Product::whereIn('id', $productIdsInTrash)->get();
+
+            foreach ($productsReadyForDeletion as $productReadyForDeletion) {
+                // Status code in trash, since status column is varchar, strict comparison as string is necessary
+                if ($productReadyForDeletion && $productReadyForDeletion->status === "-1") {
+                    if ($productReadyForDeletion->orderItems->count() > 0) {
+                        $unableToDeleteProducts[] = $productReadyForDeletion;
+                        continue;
+                    }
+
+
+                    $relatedCarts = CartItem::whereProductId($productReadyForDeletion->id)->get();
+                    $relatedKinds = Kind::whereProductId($productReadyForDeletion->id)->get();
+
+                    foreach ($relatedCarts as $cart) {
+                        $cart->deleteOrFail();
+                    }
+
+                    foreach ($relatedKinds as $kind) {
+                        foreach ($kind->images as $image) {
+                            $image->deleteOrFail();
+                        }
+                        $kind->deleteOrFail();
+                    }
+                    $productReadyForDeletion->merchants()->detach();
+                    $productReadyForDeletion->warehouses()->detach();
+
+                    $productReadyForDeletion->delete();
+                }
+                DB::rollback();
+            }
+//                return 200;
+            $productNamesWhichAreUnableToDelete = [];
+            foreach ($unableToDeleteProducts as $unableToDeleteProduct) {
+                $productNamesWhichAreUnableToDelete[] = $unableToDeleteProduct->name;
+            }
+
+
+            $messagePartOne =
+                count($productNamesWhichAreUnableToDelete) === 0
+                && count($productIdsInTrash) === count($productNamesWhichAreUnableToDelete)
+                    ? 'tất cả ' : 'một số ';
+
+            $messagePartTwo = count($productNamesWhichAreUnableToDelete) === 0 ? 'thành công ' : 'thất bại ';
+            $messagePartThree = count($productNamesWhichAreUnableToDelete) === 0 ? 'không có sản phẩm nào không bị xóa được ' : 'sản phẩm ';
+
+            if (count($productNamesWhichAreUnableToDelete) > 0) {
+                foreach ($productNamesWhichAreUnableToDelete as $productName) {
+                    $messagePartThree .= "$productName, ";
+                }
+                $messagePartThree .= "không xóa được. Vì các sản phẩm này đã tồn tại trong giỏ hàng của khách hàng.";
+            }
+
+            DB::commit();
+
+            $message = "Xóa $messagePartOne các sản phẩm $messagePartTwo. Trong đó, $messagePartThree";
+            return response(['message' => $message], 200);
+
+        }
+        DB::rollback();
+        return response(['message' => 'Chỉ có admin mới có quyền xóa sản phẩm'], 401);
+
+//            return 401; // unauthorized
+//        });
+//        if ($statusCode === 401) {
+//        }
+//        if ($statusCode === 422) {
+//            return response(['message' => "Sản phẩm đã có trong giỏ hàng của khách, vì thế bạn không được xóa sản phẩm này", ['unable' => $unableToDeleteProduct]], 422);
+//        }
+
+//        if ($statusCode === 200) {
+//        }
+
+    }
 }
