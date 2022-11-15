@@ -188,7 +188,7 @@ class ProductController extends Controller
                 ->select('product_id', DB::raw('SUM(quantity) as sum_quantity'))
                 ->distinct()
                 ->join('product', 'order_item.product_id', '=', 'product.id')
-                ->whereNotIn('product.status', [-1, "Ẩn"])
+                ->whereNotIn('product.status', [-1, "Ẩn"]) // Cannot use scope, so it's alright here
                 ->groupBy('product_id')
                 ->orderByDESC('sum_quantity')
                 ->limit(3)

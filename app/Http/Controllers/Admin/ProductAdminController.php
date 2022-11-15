@@ -64,7 +64,7 @@ class ProductAdminController extends Controller
     }
 
     /**
-     * Upload images to a specific model
+     * Upload images to a specific model in relation to a specific 1:1 ratio
      *
      * @param UploadImagesForModelRequest $request
      * @return Response
@@ -259,7 +259,6 @@ class ProductAdminController extends Controller
                                 if (is_string($inputData)) {
                                     $updateModel[$key] = $inputData;
                                 } else if (is_file($inputData) && isImage($inputData)) {
-
                                     $updateModel[$key] = '/' . uploadFile($inputData, 'img/product');
                                 }
                             }

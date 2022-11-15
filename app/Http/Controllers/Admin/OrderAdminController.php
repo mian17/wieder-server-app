@@ -16,8 +16,11 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
+
 class OrderAdminController extends Controller
 {
+    public int $MAXIMUM_OF_DAYS_FOR_ORDER_CHANGE = 7;
+
     /**
      * Display a listing of the resource.
      *
@@ -91,7 +94,16 @@ class OrderAdminController extends Controller
      */
     public function update(EditOrderRequest $request, string $uuid): Response
     {
+        $REQUEST_DA_GIAO = 4;
+
         $editingOrder = Order::findOrFail($uuid);
+        $editingPaymentDetails = PaymentDetails::findOrFail($uuid);
+        if ($editingOrder->status_id === $REQUEST_DA_GIAO
+            && $editingPaymentDetails->status === "Đã thanh toán") {
+            return response(['message' => 'Đơn hàng này đã được giao và thanh toán thành công, bạn không được thay đổi thông tin đơn hàng này'], 200);
+        }
+
+
         $editingOrder->update([
             'receiver_name' => $request->get('receiver_name'),
             'receiver_email' => $request->get('receiver_email'),
@@ -113,46 +125,52 @@ class OrderAdminController extends Controller
     {
         $editingOrder = Order::findOrFail($uuid);
         $oldStatusId = $editingOrder->status_id;
-        $requestStatusId = $request->get('status_id');
+        $requestStatusId = (int)$request->get('status_id');
 
+        $REQUEST_DA_GIAO = 4;
+        $REQUEST_DA_HUY = 5;
+        $REQUEST_DOI_TRA_HOAN_TIEN = 6;
 
         switch ($editingOrder->paymentDetails->status) {
             case "Chưa thanh toán":
-                if ($requestStatusId === "4" || $requestStatusId === "6") {
+                $processResultSuccess = operateWhenPaymentIsNotAdvanced($requestStatusId, $REQUEST_DA_GIAO, $REQUEST_DOI_TRA_HOAN_TIEN, $uuid, $oldStatusId, $REQUEST_DA_HUY, $editingOrder);
+                if (!$processResultSuccess) {
                     return response(['message' => 'Đơn hàng chưa được thanh toán.'], 422);
                 }
-                $editingOrder->update(['status_id' => $requestStatusId]);
                 break;
             case 'Đã thanh toán':
-                $editingOrder->update(['status_id' => $requestStatusId]);
+                $processResultSuccess = operateWhenPaymentIsAdvanced($uuid, $oldStatusId, $REQUEST_DA_HUY, $editingOrder, $requestStatusId, $REQUEST_DA_GIAO, $this->MAXIMUM_OF_DAYS_FOR_ORDER_CHANGE);
+                if (!$processResultSuccess) {
+                    return response(['message' => 'Đơn hàng này đã giao hàng thành công và đã được thanh toán. Bạn không thể thay đổi trạng thái của đơn hàng này được'], 422);
+                }
                 break;
             default:
                 return response(['message' => "Có lỗi xảy ra"], 422);
         }
-        Mail::send(new OrderStatusChanged($editingOrder, $oldStatusId, $requestStatusId));
+//        Mail::send(new OrderStatusChanged($editingOrder, $oldStatusId, $requestStatusId));
 
 
         return response(['message' => "Đã cập nhật trạng thái mới cho đơn hàng $uuid thành công"], 200);
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param string $uuid
-     * @return Response
-     */
-    public function destroy(string $uuid): Response
-    {
-        $orderItems = OrderItem::where('order_uuid', $uuid)->get();
-        foreach ($orderItems as $orderItem) {
-            $orderItem->where('order_uuid', $uuid)->delete();
-        }
-        PaymentDetails::findOrFail($uuid)->delete();
-        Order::findOrFail($uuid)->delete();
-
-        return response(['message' => 'Đã xóa đơn hàng thành công'], 200);
-    }
+//    /**
+//     * Remove the specified resource from storage.
+//     *
+//     * @param string $uuid
+//     * @return Response
+//     */
+//    public function destroy(string $uuid): Response
+//    {
+//        $orderItems = OrderItem::where('order_uuid', $uuid)->get();
+//        foreach ($orderItems as $orderItem) {
+//            $orderItem->where('order_uuid', $uuid)->delete();
+//        }
+//        PaymentDetails::findOrFail($uuid)->delete();
+//        Order::findOrFail($uuid)->delete();
+//
+//        return response(['message' => 'Đã xóa đơn hàng thành công'], 200);
+//    }
 
     /**
      * Get number of orders based on requested year
@@ -198,8 +216,6 @@ class OrderAdminController extends Controller
         }
         return response()->json($revenueBasedOnMonth);
     }
-
-
 
 
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 if (!function_exists('uploadFile')) {
     /**
@@ -75,5 +76,27 @@ if (!function_exists('isImage')) {
             return true;
         }
         return false;
+    }
+}
+
+if (!function_exists('resetProductInRelationToKindsQuantity')) {
+    /**
+     * Reset product quantity according to order quantity
+     *
+     * @param $uuid
+     * @param $oldStatusId
+     * @param $conditionToReset
+     * @return void
+     */
+    function resetProductInRelationToKindsQuantity($uuid, $oldStatusId, $conditionToReset): void
+    {
+        if ($oldStatusId === $conditionToReset) {
+            $orderItems = DB::table('order_item')->where('order_uuid', $uuid)->get(['model_id', 'quantity']);
+            foreach ($orderItems as $orderItem) {
+                DB::table('model')
+                    ->where('id', $orderItem->model_id)
+                    ->decrement('quantity', $orderItem->quantity);
+            }
+        }
     }
 }

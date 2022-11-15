@@ -25,6 +25,7 @@ class UserAdminController extends Controller
      */
     public function index(Request $request): JsonResponse|Response
     {
+        $ORDER_STATUS_DA_HUY = 5;
         try {
             $itemPerPage = $request->get('itemPerPage') ?: 10;
 
@@ -35,14 +36,14 @@ class UserAdminController extends Controller
                     ->orWhere('name', 'LIKE', '%' . $filter . '%')
                     ->orWhere('email', 'LIKE', '%' . $filter . '%')
                     ->orWhere('phone_number', 'LIKE', '%' . $filter . '%')
-                    ->withSum('orders AS total_money_spent', 'total')->paginate($itemPerPage);
+                    ->withSum(['orders AS total_money_spent' => fn($query) => $query->where('status_id', 'NOT', $ORDER_STATUS_DA_HUY)], 'total')->paginate($itemPerPage);
             } else {
-                $users = User::whereNull('deleted')->withSum('orders AS total_money_spent', 'total')->paginate($itemPerPage);
+                $users = User::whereNull('deleted')->withSum(['orders AS total_money_spent' => fn($query) => $query->where('status_id', 'NOT', $ORDER_STATUS_DA_HUY)], 'total')->paginate($itemPerPage);
 
             }
             return response()->json($users);
-        } catch(QueryException $e) {
-            return response(['message'=> 'Có lỗi đã xảy ra', 422]);
+        } catch (QueryException $e) {
+            return response(['message' => 'Có lỗi đã xảy ra', 422]);
         }
     }
 
@@ -148,8 +149,7 @@ class UserAdminController extends Controller
 
                 return response($response, 201);
             }
-                return response(['message' => 'Bạn không có quyền truy cập trang này.']);
-
+            return response(['message' => 'Bạn không có quyền truy cập trang này.']);
 
 
         } catch (QueryException $e) {
@@ -198,7 +198,8 @@ class UserAdminController extends Controller
      * @param string $uuid
      * @return Response
      */
-    public function restoreUser(string $uuid): Response {
+    public function restoreUser(string $uuid): Response
+    {
         $user = User::findOrFail($uuid);
         $user->update(['deleted' => NULL]);
 

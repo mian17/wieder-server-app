@@ -169,7 +169,6 @@ class OrderController extends Controller
             $orderAttributes['status_id'] = Status::pluck('id')->first();
 
 
-
             if (auth('sanctum')->user()) {
                 $user_uuid = auth('sanctum')->user()->uuid;
                 $orderAttributes['user_uuid'] = $user_uuid;
@@ -228,7 +227,6 @@ class OrderController extends Controller
         });
 
 
-
         if (!$quantityIsNotPassable) {
             return response(['message' => 'Transaction finished without any errors'], 200);
         }
@@ -236,7 +234,7 @@ class OrderController extends Controller
         ////////////////////////////////////////////////////
         /// Quantity Errors
         $errorMessages = [];
-        foreach($kindsToCheckQuantity as $kindThatHasQuantityError) {
+        foreach ($kindsToCheckQuantity as $kindThatHasQuantityError) {
             $errorMessages[] = "Sản phẩm $kindThatHasQuantityError->name chỉ còn $kindThatHasQuantityError->quantity số lượng.";
         }
 
@@ -276,51 +274,98 @@ class OrderController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate(['order_status' => 'required|integer|numeric|min:1']);
-        DB::transaction(function () use ($request, $id) {
+
+        $hasError = false;
+        $errorMessage = '';
+        $statusCode = '';
+
+        $REQUEST_CHO_XAC_NHAN = 1;
+        $REQUEST_CHO_LAY_HANG = 2;
+        $REQUEST_DANG_GIAO = 3;
+        $REQUEST_DA_GIAO = 4;
+        $REQUEST_DA_HUY = 5;
+        $REQUEST_DOI_TRA_HOAN_TIEN = 6;
+
+        DB::transaction(function () use ($REQUEST_DA_HUY, $REQUEST_DA_GIAO, $REQUEST_DOI_TRA_HOAN_TIEN, $REQUEST_DANG_GIAO, $REQUEST_CHO_LAY_HANG, $REQUEST_CHO_XAC_NHAN, $request, $id, &$errorMessage, &$statusCode, &$hasError) {
             $editingOrder = Order::find($id);
+            $orderPaymentDetailsToCheck = PaymentDetails::findOrFail($id);
             if (auth()->user()) {
                 switch ($request->get('order_status')) {
-                    case 4:
+
+                    case $REQUEST_CHO_LAY_HANG: {
+                        if ($editingOrder->status_id === $REQUEST_CHO_XAC_NHAN) {
+                            $editingOrder->update(['status_id' => $REQUEST_CHO_LAY_HANG]);
+                        } else {
+                            $errorMessage = 'Đơn hàng cần phải ở trạng thái Chờ xác nhận thì mới được chuyển sang trạng thái Chờ lấy hàng';
+                            $statusCode = '422';
+                            $hasError = true;
+                            return;
+                        }
+                    }
+                    case $REQUEST_DANG_GIAO:
+                        if ($editingOrder->status_id === $REQUEST_CHO_LAY_HANG || $editingOrder->status_id === $REQUEST_DOI_TRA_HOAN_TIEN) {
+                            $editingOrder->update(['status_id' => $REQUEST_DANG_GIAO]);
+                        } else {
+                            $errorMessage = 'Đơn hàng cần ở trạng thái Chờ lấy hàng hoặc trạng thái Hủy yêu cầu đổi trả/hoàn tiền thì mới được chuyển sang trạng thái Đang giao';
+                            $statusCode = '422';
+                            $hasError = true;
+                            return;
+                        }
+                        break;
+                    case $REQUEST_DA_GIAO:
+//                        $conditionToChangeToOrderReceivedStatus =
+//                            ($editingOrder->status_id === 1
+//                                || $editingOrder->status_id === 2
+//                                || $editingOrder->status_id === 3
+//                                || $editingOrder->status_id === 6)
+//                            && $orderPaymentDetailsToCheck->status === "Đã thanh toán";
+
                         $conditionToChangeToOrderReceivedStatus =
-                            $editingOrder->status_id === 1
-                            || $editingOrder->status_id === 2
-                            || $editingOrder->status_id === 3
-                            || $editingOrder->status_id === 6;
+                            $editingOrder->status_id === $REQUEST_DANG_GIAO // Order status "Đang giao"
+                            && $orderPaymentDetailsToCheck->status === "Đã thanh toán";
 
                         if ($conditionToChangeToOrderReceivedStatus) {
-                            $editingOrder->update(['status_id' => 4]);
+                            $editingOrder->update(['status_id' => $REQUEST_DA_GIAO]); // Order status "Đã giao"
 
                         } else {
-                            return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                            $errorMessage = 'Đơn hàng cần được thanh toán và đang ở trạng thái Đang giao hàng thì yêu cầu của bạn mới được chấp thuận';
+                            $statusCode = '422';
+                            $hasError = true;
+                            return;
                         }
                         break;
                     case 5:
                         $conditionToChangeToOrderCanceled =
-                            $editingOrder->status_id === 1
-                            || $editingOrder->status_id === 2
-                            || $editingOrder->status_id === 3;
+                            $editingOrder->status_id === $REQUEST_CHO_XAC_NHAN
+                            || $editingOrder->status_id === $REQUEST_CHO_LAY_HANG;
 
                         if ($conditionToChangeToOrderCanceled) {
-                            $editingOrder->update(['status_id' => 5]);
+                            $editingOrder->update(['status_id' => $REQUEST_DA_HUY]);
                             $orderItems = DB::table('order_item')->where('order_uuid', $id)->get(['model_id', 'quantity']);
                             foreach ($orderItems as $orderItem) {
                                 DB::table('model')
                                     ->where('id', $orderItem->model_id)
                                     ->increment('quantity', $orderItem->quantity);
-
                             }
 //                        return response()->json($orderItems);
 
                         } else {
-                            return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                            $errorMessage = 'Đơn hàng cần phải đang ở trạng thái Chờ xác nhận hoặc Chờ lấy hàng thì yêu cầu của bạn mới được chấp thuận';
+                            $statusCode = '422';
+                            $hasError = true;
+                            return;
                         }
                         break;
                     case 6:
-                        $conditionToChangeToOrderReturnOrRefund = $editingOrder->status_id === 4;
+                        $conditionToChangeToOrderReturnOrRefund = $editingOrder->status_id === $REQUEST_DANG_GIAO
+                            && $orderPaymentDetailsToCheck->status === "Đã thanh toán";
                         if ($conditionToChangeToOrderReturnOrRefund) {
-                            $editingOrder->update(['status_id' => 6]);
+                            $editingOrder->update(['status_id' => $REQUEST_DOI_TRA_HOAN_TIEN]);
                         } else {
-                            return response(['message' => 'Yêu cầu không hợp lệ'], 422);
+                            $errorMessage = 'Đơn hàng cần phải đang ở trạng thái Đang giao hàng và Đã thanh toán thì yêu cầu của bạn mới được chấp thuận';
+                            $statusCode = '422';
+                            $hasError = true;
+                            return;
                         }
                         break;
                     default:
@@ -338,19 +383,25 @@ class OrderController extends Controller
             return response(['message' => 'Bạn không có quyền'], 401);
 
         });
+
+        if ($errorMessage !== '' && $statusCode !== '' && $hasError) {
+            return response(['error_message' => $errorMessage], (int) $statusCode);
+        }
         return response(['message' => 'Transaction finished']);
+
+
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+//    /**
+//     * Remove the specified resource from storage.
+//     *
+//     * @param int $id
+//     * @return Response
+//     */
+//    public function destroy($id)
+//    {
+//        //
+//    }
 
     /**
      * @param StoreOrderRequest $request
