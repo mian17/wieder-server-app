@@ -15,7 +15,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Throwable;
 
@@ -220,6 +223,7 @@ class ProductAdminController extends Controller
                 && $request->has('warehouse_ids')
                 && $request->has('models');
 
+
             if ($hasRelationalKeysForStoringProduct) {
                 $decodedMerchantIds = json_decode($request->get('merchant_ids'), false, 512, JSON_THROW_ON_ERROR);
                 $decodedWarehouseIds = json_decode($request->get('warehouse_ids'), false, 512, JSON_THROW_ON_ERROR);
@@ -277,6 +281,9 @@ class ProductAdminController extends Controller
                                 if (is_string($inputData)) {
                                     $updateModel[$key] = $inputData;
                                 } else if (is_file($inputData) && isImage($inputData)) {
+                                    if (File::exists(public_path($relatedModels[$i][$key]))) {
+                                        File::delete(public_path($relatedModels[$i][$key]));
+                                    }
                                     $updateModel[$key] = '/' . uploadFile($inputData, 'img/product');
                                 }
                             }
