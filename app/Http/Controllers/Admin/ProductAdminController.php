@@ -523,6 +523,17 @@ class ProductAdminController extends Controller
         }
         DB::rollback();
         return response(['message' => 'Chỉ có admin mới có quyền xóa sản phẩm'], 401);
+    }
 
+
+    public function updateMultipleProductsToAnotherCategory(Request $request): Response
+    {
+        $attributes = $request->get('update_category_products_id');
+        $selectedCategoryId = $request->get('update_to_category_id');
+
+        $productsReadyToUpdateCategory = Product::whereIn('id', $attributes);
+        $productsReadyToUpdateCategory->update(['category_id' => $selectedCategoryId]);
+
+        return response(['message' => 'Cập nhật danh mục mới cho các sản phẩm thành công'], 200);
     }
 }

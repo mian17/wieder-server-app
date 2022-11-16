@@ -216,6 +216,8 @@ Route::prefix('admin')->group(function () {
         Route::post('products-trash-restore', [ProductAdminController::class, 'restoreItems']);
         Route::delete('product/{id}', [ProductAdminController::class, 'destroy']);
         Route::post('directly-remove-products', [ProductAdminController::class, 'directlyRemoveItemsWhichAreInTrash']);
+        Route::post('update-multiple-products-to-another-category', [ProductAdminController::class, 'updateMultipleProductsToAnotherCategory']);
+
 
         // Add image for product, for client's product details page operations
         Route::get('product-details', [ProductAdminController::class, 'productIndexForImage']);
