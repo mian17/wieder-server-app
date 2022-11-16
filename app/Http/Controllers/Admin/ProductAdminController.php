@@ -404,6 +404,7 @@ class ProductAdminController extends Controller
     public function directlyRemoveItemsWhichAreInTrash(Request $request): Response
     {
         $unableToDeleteProducts = [];
+        $deletedProductsCount = 0;
         $productIdsInTrash = $request->get('directly_remove_item_ids');
 
         DB::beginTransaction();
@@ -437,8 +438,10 @@ class ProductAdminController extends Controller
                     $productReadyForDeletion->warehouses()->detach();
 
                     $productReadyForDeletion->delete();
+                    $deletedProductsCount++;
+                } else {
+                    DB::rollback();
                 }
-                DB::rollback();
             }
 //                return 200;
             $productNamesWhichAreUnableToDelete = [];
@@ -446,25 +449,60 @@ class ProductAdminController extends Controller
                 $productNamesWhichAreUnableToDelete[] = $unableToDeleteProduct->name;
             }
 
+            //$productsReadyForDeletion (input)
+//            $deletedProductsCount (processed)
+            //$productNamesWhichAreUnableToDelete (output)
 
-            $messagePartOne =
-                count($productNamesWhichAreUnableToDelete) === 0
-                && count($productIdsInTrash) === count($productNamesWhichAreUnableToDelete)
-                    ? 'tất cả ' : 'một số ';
+            // Nếu không xóa được tất cả các sản phẩm mà người dùng đã chọn
+            // I need to check these conditions
+//            Xóa ${tất cả} các sản phẩm bạn chọn ${thất bại}. Trong đó, sản phẩm ${Dưa hấu, Dâu tây}, không xóa được. Vì các sản phẩm này đã tồn tại trong giỏ hàng của khách hàng.
+            // 1 - $noProductsWhichAreUnableToDelete = count($productNamesWhichAreUnableToDelete) === 0 && count($productsReadyForDeletion) ;
+            // 2 - $hasSomeProductsWhichAreUnableToDelete = count($productNamesWhichAreUnableToDelete) > 0;
+            // messagePartOne tất cả = $noProductsWhichAreUnableToDelete
 
-            $messagePartTwo = count($productNamesWhichAreUnableToDelete) === 0 ? 'thành công ' : 'thất bại ';
-            $messagePartThree = count($productNamesWhichAreUnableToDelete) === 0 ? 'không có sản phẩm nào không bị xóa được ' : 'sản phẩm ';
-
-            if (count($productNamesWhichAreUnableToDelete) > 0) {
-                foreach ($productNamesWhichAreUnableToDelete as $productName) {
-                    $messagePartThree .= "$productName, ";
+            // CASE WHEN: all selected products are unable to be deleted
+            if ($deletedProductsCount === 0 && count($productsReadyForDeletion) === count($productNamesWhichAreUnableToDelete)) {
+                $messagePartOne = 'tất cả';
+                $messagePartTwo = 'thất bại';
+                $messagePartThree = '';
+                if (count($productNamesWhichAreUnableToDelete) > 0) {
+                    foreach ($productNamesWhichAreUnableToDelete as $productName) {
+                        $messagePartThree .= "$productName, ";
+                    }
+                    $messagePartThree .= "không xóa được. Vì các sản phẩm này đã tồn tại trong giỏ hàng của khách hàng.";
                 }
-                $messagePartThree .= "không xóa được. Vì các sản phẩm này đã tồn tại trong giỏ hàng của khách hàng.";
+            }
+            // CASE WHEN: Some can be deleted but not the others
+            // Sản phẩm xóa được vài cái và sản phẩm cần xóa đầu vào lại nhiều hơn số sản phẩm không xóa được
+//            Xóa ${một số} các sản phẩm bạn chọn ${thất bại}. Trong đó, sản phẩm ${Dưa hấu, Dâu tây}, không xóa được. Vì các sản phẩm này đã tồn tại trong giỏ hàng của khách hàng.
+            if ($deletedProductsCount > 0 && count($productsReadyForDeletion) > count($productNamesWhichAreUnableToDelete)) {
+                $messagePartOne = 'một số';
+                $messagePartTwo = 'thất bại';
+                $messagePartThree = '';
+                if (count($productNamesWhichAreUnableToDelete) > 0) {
+                    foreach ($productNamesWhichAreUnableToDelete as $productName) {
+                        $messagePartThree .= "$productName, ";
+                    }
+                    $messagePartThree .= "không xóa được. Vì các sản phẩm này đã tồn tại trong giỏ hàng của khách hàng.";
+                }
+            }
+
+            // CASE WHEN: All can be deleted
+            // Xóa được hết tất cả sản phẩm mà người dùng chọn
+//            Xóa ${tất cả} các sản phẩm bạn chọn ${thành công}. Trong đó, sản phẩm ${không có sản phẩm nào} không xóa được.
+            if (
+                $deletedProductsCount > 0
+                && $deletedProductsCount === count($productsReadyForDeletion)
+                && count($productsReadyForDeletion) === count($productNamesWhichAreUnableToDelete)
+            ) {
+                $messagePartOne = 'tất cả';
+                $messagePartTwo = 'thành công';
+                $messagePartThree = 'không có sản phẩm nào không xóa được';
             }
 
             DB::commit();
 
-            $message = "Xóa $messagePartOne các sản phẩm $messagePartTwo. Trong đó, $messagePartThree";
+            $message = "Xóa $messagePartOne các sản phẩm bạn chọn $messagePartTwo. Trong đó, $messagePartThree";
             return response(['message' => $message], 200);
 
         }
